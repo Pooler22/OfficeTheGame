@@ -8,6 +8,8 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
+        <StackPanel x:Name="playPanel" Margin="8,32,0,0">
+            <Button x:Name="backButton" Content="Back" Click="Button_Click_Bac_To_MainPage"/>
+        </StackPanel>
     </Grid>
 </Page>

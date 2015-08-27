@@ -26,5 +26,10 @@ namespace testUniveralApp
         {
             this.InitializeComponent();
         }
+
+		private void Button_Click_Bac_To_MainPage(object sender, RoutedEventArgs e)
+		{
+			this.Frame.Navigate(typeof(MainPage));
+		}
     }
 }

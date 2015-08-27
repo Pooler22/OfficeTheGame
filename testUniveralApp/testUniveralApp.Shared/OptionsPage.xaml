@@ -8,8 +8,8 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="welcomePanel" Margin="8,32,0,0">
-            <TextBlock Text="Paweł Rutkowski"/>
+        <StackPanel x:Name="optionsPanel" Margin="8,32,0,0">
+            <TextBlock Text="Author: Paweł Rutkowski"/>
             <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage"/>
         </StackPanel>
     </Grid>

@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-      <StackPanel x:Name="welcomePanel" Margin="8,32,0,0">
+      <StackPanel x:Name="startPanel" Margin="8,32,0,0">
         <TextBlock Text="Welcome" Margin="0,0,0,40"/>
         <TextBlock Text="What's your name?"/>
         <StackPanel x:Name="inputPanel" Orientation="Horizontal" Margin="0,20,0,20">
