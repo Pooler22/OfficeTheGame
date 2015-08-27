@@ -9,7 +9,11 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel x:Name="playPanel" Margin="8,32,0,0">
-            <Button x:Name="backButton" Content="Back" Click="Button_Click_Bac_To_MainPage"/>
+            <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage"/>
+            <Button x:Name="conntctButton" Content="Connect" Click="Connect"/>
+            <TextBlock x:Name="outTextBlock" Text=""/>
+            <TextBox x:Name="inTextBox" KeyDown="inTextBox_KeyDown"></TextBox>
+            <Button x:Name="sendButton" Content="Send" Click="Send"/>
         </StackPanel>
     </Grid>
 </Page>
