@@ -21,19 +21,16 @@ using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.Networking;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace testUniveralApp
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class PlayPage : Page
     {
 		public string name;
 		private StreamSocket _socket = new StreamSocket();
 		private StreamSocketListener _listener = new StreamSocketListener();
 		private List<StreamSocket> _connections = new List<StreamSocket>();
+		int speedPlayer = 10;
   
 		public PlayPage()
         {
@@ -48,7 +45,6 @@ namespace testUniveralApp
 		async private void WaitForData(StreamSocket socket)
 		{
 			var dr = new DataReader(socket.InputStream);
-			//dr.InputStreamOptions = InputStreamOptions.Partial;
 			var stringHeader = await dr.LoadAsync(4);
 
 			if (stringHeader == 0)
@@ -134,8 +130,20 @@ namespace testUniveralApp
 		{
 			if (e.Key == Windows.System.VirtualKey.Enter)
 			{
-				SendMessage(_socket, "asd");
+				SendMessage(_socket, inTextBox.Text);
 				inTextBox.Text = "";
+			}
+		}
+
+		private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key == Windows.System.VirtualKey.Left)
+			{
+				playerButton.Margin = new Thickness(playerButton.Margin.Left - speedPlayer, playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
+			}
+			else if (e.Key == Windows.System.VirtualKey.Right)
+			{
+				playerButton.Margin = new Thickness(playerButton.Margin.Left + speedPlayer, playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
 			}
 		}
     }

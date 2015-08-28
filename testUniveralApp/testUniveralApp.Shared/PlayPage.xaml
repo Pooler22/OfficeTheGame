@@ -5,18 +5,17 @@
     xmlns:local="using:testUniveralApp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-
+    mc:Ignorable="d" KeyDown="Grid_KeyDown">
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel Margin="0" Grid.Row="3" Grid.RowSpan="10" Grid.Column="1">
             <StackPanel x:Name="controlPanel" VerticalAlignment="Top">
                 <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage" HorizontalAlignment="Stretch" Padding="0" Width="200" VerticalAlignment="Top"/>
-                <Button x:Name="conntctButton" Content="Connect" Click="Connect" Width="200" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Top"/>
+                <Button x:Name="conntctButton" Content="Connect" Click="Connect" Width="200" HorizontalAlignment="Center" Padding="0" VerticalAlignment="Top"/>
             </StackPanel>
             <StackPanel x:Name="playPanel" UseLayoutRounding="True">
-                <Button Content="Send" VerticalAlignment="Top" />
-                <Ellipse Fill="#FFF4F4F5" Height="30" Stroke="Black" Width="30" HorizontalAlignment="Center"/>
-                <Button Content="Send" VerticalAlignment="Bottom" HorizontalAlignment="Center" AllowDrop="True" />
+                <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Top" HorizontalAlignment="Stretch" Width="200" />
+                <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Width="30" Height="30"/>
+                <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Margin="40,0,39,0" Width="200"/>
             </StackPanel>
             <StackPanel x:Name="massage" VerticalAlignment="Bottom">
                 <TextBlock x:Name="outTextBlock" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
