@@ -8,11 +8,11 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="mainPanel" Margin="8,32,0,0">
-            <TextBlock x:Name="nameTextBlock" Text=""/>
-            <Button x:Name="startButton" Content="Start" Click="Button_Click_Start"/>
-            <Button x:Name="optionsButton" Content="Options" Click="Button_Click_Options"/>
-            <Button x:Name="exitButton" Content="Exit" Click="Button_Click_Exit"/>
+        <StackPanel Grid.RowSpan="2" VerticalAlignment="Center">
+            <TextBlock x:Name="nameTextBlock" Text="" Width="200" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" TextAlignment="Center"/>
+            <Button x:Name="startButton" Content="Start" Width="200" Height="30" Click="Button_Click_Start" HorizontalAlignment="Center" Padding="0"/>
+            <Button x:Name="optionsButton" Content="Options" Width="200" Height="30" Click="Button_Click_Options" HorizontalAlignment="Center" Padding="0"/>
+            <Button x:Name="exitButton" Content="Exit" Width="200" Height="30" Click="Button_Click_Exit" HorizontalAlignment="Center" Padding="0"/>
         </StackPanel>
     </Grid>
 </Page>

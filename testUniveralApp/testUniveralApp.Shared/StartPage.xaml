@@ -7,12 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" KeyDown="Page_KeyDown">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center">
-        <StackPanel Grid.Column="1" VerticalAlignment="Center" Grid.Row="4" Grid.RowSpan="10" HorizontalAlignment="Center" Height="140">
-            <TextBlock Text="What's your name?" Margin="583,0" HorizontalAlignment="Center" Width="200" Height="30" VerticalAlignment="Center" FontSize="18"/>
-            <TextBox x:Name="nameInput" HorizontalAlignment="Center" Margin="0" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name" VerticalAlignment="Center"/>
-            <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Center" Margin="0" Width="200"/>
-            <TextBlock x:Name="greetingOutput" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" RenderTransformOrigin="0.5,0.5" Margin="583,0"/>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="What's your name?" Margin="0,1,0,0" Width="200" Height="30" VerticalAlignment="Center" FontSize="18" TextAlignment="Center"/>
+            <TextBox x:Name="nameInput" Margin="0" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name" VerticalAlignment="Center"/>
+            <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Stretch" Margin="0" Width="200" Padding="0" VerticalAlignment="Stretch"/>
+            <TextBlock x:Name="greetingOutput" Width="200" Height="30" RenderTransformOrigin="0.5,0.5" Margin="0" TextAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Page>

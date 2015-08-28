@@ -13,13 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace testUniveralApp
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         public MainPage()
@@ -29,12 +24,12 @@ namespace testUniveralApp
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			nameTextBlock.Text = e.Parameter as string;
+			nameTextBlock.Text = "Welcome " + e.Parameter as string;
 		}
 
 		private void Button_Click_Start(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(PlayPage));
+			this.Frame.Navigate(typeof(PlayPage), nameTextBlock.Text);
 		}
 
 		private void Button_Click_Options(object sender, RoutedEventArgs e)
