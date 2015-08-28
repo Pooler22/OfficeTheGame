@@ -17,6 +17,7 @@ namespace testUniveralApp
 {
     public sealed partial class MainPage : Page
     {
+		string name;
         public MainPage()
         {
             this.InitializeComponent();
@@ -24,7 +25,8 @@ namespace testUniveralApp
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			nameTextBlock.Text = "Welcome " + e.Parameter as string;
+			name = e.Parameter as string;
+			nameTextBlock.Text = "Welcome " + name;
 		}
 
 		private void Button_Click_Start(object sender, RoutedEventArgs e)

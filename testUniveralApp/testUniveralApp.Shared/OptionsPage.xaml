@@ -8,9 +8,9 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="optionsPanel" Margin="8,32,0,0">
-            <TextBlock Text="Author: Paweł Rutkowski"/>
-            <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage"/>
+        <StackPanel Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="Author: Paweł Rutkowski" FontSize="18" TextAlignment="Center" Height="30"/>
+            <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage" FontSize="18" HorizontalAlignment="Stretch" Width="200" Height="30" Padding="0"/>
         </StackPanel>
     </Grid>
 </Page>

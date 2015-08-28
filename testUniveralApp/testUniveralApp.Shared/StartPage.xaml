@@ -10,7 +10,7 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center">
             <TextBlock Text="What's your name?" Margin="0,1,0,0" Width="200" Height="30" VerticalAlignment="Center" FontSize="18" TextAlignment="Center"/>
-            <TextBox x:Name="nameInput" Margin="0" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name" VerticalAlignment="Center"/>
+            <TextBox x:Name="nameInput" Margin="0" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name"  VerticalAlignment="Center"/>
             <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Stretch" Margin="0" Width="200" Padding="0" VerticalAlignment="Stretch"/>
             <TextBlock x:Name="greetingOutput" Width="200" Height="30" RenderTransformOrigin="0.5,0.5" Margin="0" TextAlignment="Center" VerticalAlignment="Center"/>
         </StackPanel>
