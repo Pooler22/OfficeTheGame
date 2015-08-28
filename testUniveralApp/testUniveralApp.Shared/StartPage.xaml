@@ -5,17 +5,14 @@
     xmlns:local="using:testUniveralApp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d" KeyDown="Page_KeyDown">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-      <StackPanel x:Name="startPanel" Margin="8,32,0,0">
-        <TextBlock Text="Welcome" Margin="0,0,0,40"/>
-        <TextBlock Text="What's your name?"/>
-        <StackPanel x:Name="inputPanel" Orientation="Horizontal" Margin="0,20,0,20">
-          <TextBox x:Name="nameInput" Width="280" HorizontalAlignment="Left"/>
-          <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name"/>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center">
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Grid.Row="4" Grid.RowSpan="10" HorizontalAlignment="Center" Height="140">
+            <TextBlock Text="What's your name?" Margin="583,0" HorizontalAlignment="Center" Width="200" Height="30" VerticalAlignment="Center" FontSize="18"/>
+            <TextBox x:Name="nameInput" HorizontalAlignment="Center" Margin="0" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name" VerticalAlignment="Center"/>
+            <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Center" Margin="0" Width="200"/>
+            <TextBlock x:Name="greetingOutput" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" RenderTransformOrigin="0.5,0.5" Margin="583,0"/>
         </StackPanel>
-        <TextBlock x:Name="greetingOutput"/>
-      </StackPanel>
     </Grid>
 </Page>

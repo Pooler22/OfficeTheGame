@@ -9,6 +9,7 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel x:Name="mainPanel" Margin="8,32,0,0">
+            <TextBlock x:Name="nameTextBlock" Text=""/>
             <Button x:Name="startButton" Content="Start" Click="Button_Click_Start"/>
             <Button x:Name="optionsButton" Content="Options" Click="Button_Click_Options"/>
             <Button x:Name="exitButton" Content="Exit" Click="Button_Click_Exit"/>

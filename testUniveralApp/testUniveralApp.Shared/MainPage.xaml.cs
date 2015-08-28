@@ -27,6 +27,11 @@ namespace testUniveralApp
             this.InitializeComponent();
         }
 
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			nameTextBlock.Text = e.Parameter as string;
+		}
+
 		private void Button_Click_Start(object sender, RoutedEventArgs e)
 		{
 			this.Frame.Navigate(typeof(PlayPage));

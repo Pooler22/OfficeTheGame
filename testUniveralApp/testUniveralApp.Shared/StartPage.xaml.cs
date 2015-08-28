@@ -15,9 +15,6 @@ using Windows.UI.Xaml.Navigation;
 
 namespace testUniveralApp
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
 	public sealed partial class StartPage : Page
     {
         public StartPage()
@@ -27,14 +24,27 @@ namespace testUniveralApp
 
 		private void Button_Click_Set_Name(object sender, RoutedEventArgs e)
 		{
-			if(nameInput.Text == "")
+			checkName();
+		}
+
+		private void Page_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key == Windows.System.VirtualKey.Enter)
+			{
+				checkName();
+			}
+		}
+
+		private void checkName()
+		{
+			if (nameInput.Text == "")
 			{
 				greetingOutput.Text = "You don't have name?";
 			}
 			else
 			{
 				greetingOutput.Text = "Hello, " + nameInput.Text + "!";
-				this.Frame.Navigate(typeof(MainPage));
+				this.Frame.Navigate(typeof(MainPage), nameInput.Text);
 			}
 		}
     }

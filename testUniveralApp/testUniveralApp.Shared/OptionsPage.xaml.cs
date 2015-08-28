@@ -28,7 +28,7 @@ namespace testUniveralApp
         }
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(MainPage));
+			this.Frame.GoBack();
 		}
     }
 }

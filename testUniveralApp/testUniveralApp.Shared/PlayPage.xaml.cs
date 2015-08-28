@@ -30,6 +30,7 @@ namespace testUniveralApp
     /// </summary>
     public sealed partial class PlayPage : Page
     {
+		public string name;
 		private StreamSocket _socket = new StreamSocket();
 		private StreamSocketListener _listener = new StreamSocketListener();
 		private List<StreamSocket> _connections = new List<StreamSocket>();
@@ -41,7 +42,7 @@ namespace testUniveralApp
 
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(MainPage));
+			this.Frame.GoBack();
 		}
 
 		async private void WaitForData(StreamSocket socket)
@@ -70,13 +71,15 @@ namespace testUniveralApp
 		{
 			try
 			{
-				await _socket.ConnectAsync(new HostName("127.0.0.1"), "7");
+				await _socket.ConnectAsync(new HostName("31.183.54.133"), "7");
 				LogMessage(string.Format("Connected to {0}", _socket.Information.RemoteHostName.DisplayName));
 				WaitForData(_socket);
+				inTextBox.IsEnabled = sendButton.IsEnabled = true;
 			}
 			catch (Exception ex)
 			{
 				LogMessage(string.Format("Connected false"));
+				inTextBox.IsEnabled = sendButton.IsEnabled = false;
 			}
 		}
 
