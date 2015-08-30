@@ -26,7 +26,9 @@ namespace testUniveralApp
 {
     public sealed partial class PlayPage : Page
     {
-		public string name;
+		public string name { get; set; }
+		public string type{ get; set; }
+
 		private StreamSocket _socket = new StreamSocket();
 		private StreamSocketListener _listener = new StreamSocketListener();
 		private List<StreamSocket> _connections = new List<StreamSocket>();
@@ -36,6 +38,16 @@ namespace testUniveralApp
         {
             this.InitializeComponent();
         }
+	
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			this.name = e.Parameter as string;
+			this.type = name.Substring(0,1);
+			this.name = name.Substring(1);
+			playerName.Text = name;
+			enemyName.Text = type;
+			//nameTextBlock.Text = "Welcome " + this.name;
+		}
 
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{

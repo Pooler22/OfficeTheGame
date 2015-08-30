@@ -17,21 +17,21 @@ namespace testUniveralApp
 {
     public sealed partial class MainPage : Page
     {
-		string name;
-        public MainPage()
+		string name = System.String.Empty;
+		public MainPage()
         {
             this.InitializeComponent();
         }
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			name = e.Parameter as string;
-			nameTextBlock.Text = "Welcome " + name;
+			this.name = e.Parameter as string;
+			nameTextBlock.Text = "Welcome " + this.name;
 		}
 
 		private void Button_Click_Start(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(PlayPage), nameTextBlock.Text);
+			this.Frame.Navigate(typeof(SelectPage), name);
 		}
 
 		private void Button_Click_Options(object sender, RoutedEventArgs e)
