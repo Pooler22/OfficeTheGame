@@ -8,9 +8,19 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center">
-            <TextBlock Text="Author: Paweł Rutkowski" FontSize="18" TextAlignment="Center" Height="30"/>
-            <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage" FontSize="18" HorizontalAlignment="Stretch" Width="200" Height="30" Padding="0"/>
-        </StackPanel>
+        <Grid Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Author: Paweł Rutkowski" FontSize="24" TextAlignment="Center" Width="300" Height="50" Margin="0" VerticalAlignment="Center"/>
+            <TextBox x:Name="changeNameTextBox" TextWrapping="Wrap" Text="" Width="200" Padding="0" FontSize="24" Height="50" KeyDown="changeNameTextBox_KeyDown" TextChanged="changeNameTextBox_TextChanged" Margin="0" VerticalAlignment="Center" Grid.Row="1"/>
+            <TextBlock TextWrapping="Wrap" Width="200" Height="50" Canvas.ZIndex="1" FontSize="24" TextAlignment="Center" Text="Name:" Margin="0" VerticalAlignment="Center" Grid.Row="2"/>
+            <TextBlock x:Name="infoTextBlock" TextWrapping="Wrap" Text="" FontSize="24" Width="200" Height="50" TextAlignment="Center" Margin="0" VerticalAlignment="Center" Grid.Row="3"/>
+            <Button x:Name="backButton" Content="Back" Click="Button_Click_Back_To_MainPage" FontSize="24" HorizontalAlignment="Stretch" Height="50" Padding="0" Margin="0" VerticalAlignment="Center" Grid.Row="4"/>
+        </Grid>
     </Grid>
 </Page>

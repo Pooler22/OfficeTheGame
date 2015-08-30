@@ -36,7 +36,7 @@ namespace testUniveralApp
 
 		private void Button_Click_Options(object sender, RoutedEventArgs e)
 		{
-			this.Frame.Navigate(typeof(OptionsPage));
+			this.Frame.Navigate(typeof(OptionsPage), name);
 		}
 
 		private void Button_Click_Exit(object sender, RoutedEventArgs e)

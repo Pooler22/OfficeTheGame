@@ -8,11 +8,17 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel Grid.RowSpan="2" VerticalAlignment="Center">
-            <TextBlock x:Name="nameTextBlock" Text="" Width="200" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" TextAlignment="Center"/>
-            <Button x:Name="startButton" Content="Start" Width="200" Height="30" Click="Button_Click_Start" HorizontalAlignment="Center" Padding="0"/>
-            <Button x:Name="optionsButton" Content="Options" Width="200" Height="30" Click="Button_Click_Options" HorizontalAlignment="Center" Padding="0"/>
-            <Button x:Name="exitButton" Content="Exit" Width="200" Height="30" Click="Button_Click_Exit" HorizontalAlignment="Center" Padding="0"/>
-        </StackPanel>
+        <Grid Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock x:Name="nameTextBlock" Text="" Width="200" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" TextAlignment="Center"/>
+            <Button x:Name="startButton" Content="Start" Width="200" Height="50" Click="Button_Click_Start" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0,50,0,-50"/>
+            <Button x:Name="optionsButton" Content="Options" Width="200" Height="50" Click="Button_Click_Options" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0,100,0,-100"/>
+            <Button x:Name="exitButton" Content="Exit" Width="200" Height="50" Click="Button_Click_Exit" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0,150,0,-150"/>
+        </Grid>
     </Grid>
 </Page>

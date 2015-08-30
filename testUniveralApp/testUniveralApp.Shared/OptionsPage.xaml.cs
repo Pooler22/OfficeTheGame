@@ -21,9 +21,43 @@ namespace testUniveralApp
         {
             this.InitializeComponent();
         }
+
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			infoTextBlock.Text = e.Parameter as string;
+		}
+
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			this.Frame.GoBack();
+			if (infoTextBlock.Text != "Wrong name!")
+			{
+				this.Frame.Navigate(typeof(MainPage), infoTextBlock.Text);
+			}
+		}
+
+		private void checkName()
+		{
+			if (changeNameTextBox.Text == "")
+			{
+				infoTextBlock.Text = "Wrong name!";
+			}
+			else
+			{
+				infoTextBlock.Text = changeNameTextBox.Text;
+			}
+		}
+
+		private void changeNameTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+		{
+			if (e.Key == Windows.System.VirtualKey.Enter)
+			{
+				checkName();
+			}
+		}
+
+		private void changeNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			checkName();
 		}
     }
 }

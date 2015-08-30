@@ -20,7 +20,6 @@ namespace testUniveralApp
         public StartPage()
         {
             this.InitializeComponent();
-			
         }
 
 		private void Button_Click_Set_Name(object sender, RoutedEventArgs e)
