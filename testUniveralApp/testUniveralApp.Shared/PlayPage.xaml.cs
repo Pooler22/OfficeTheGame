@@ -20,132 +20,189 @@ using System.Windows.Input;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.Networking;
+using Windows.Networking.Connectivity;
+using System.Text;
+using System.Diagnostics;
+using Windows.UI.Core;
+using Windows.UI.Input;
+
 
 
 namespace testUniveralApp
 {
     public sealed partial class PlayPage : Page
     {
-		public string name { get; set; }
-		public string type{ get; set; }
-
-		private StreamSocket _socket = new StreamSocket();
-		private StreamSocketListener _listener = new StreamSocketListener();
-		private List<StreamSocket> _connections = new List<StreamSocket>();
-		int speedPlayer = 10;
-  
+		int speedPlayer;
+		string name { get; set; }
+		string type{ get; set; }
+		string message;
+		DatagramSocket receiveSocket;
+		String ipAddress, port;
+		ConnectionProfile connectionProfile;
+				
 		public PlayPage()
         {
             this.InitializeComponent();
-        }
+			message = null;
+			speedPlayer = 10;
+			receiveSocket = null;
+			ipAddress = "224.0.0.3";
+			port = "2704";
+			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+		}
 	
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.name = e.Parameter as string;
 			this.type = name.Substring(0,1);
 			this.name = name.Substring(1);
-			playerName.Text = name;
-			enemyName.Text = type;
-			//nameTextBlock.Text = "Welcome " + this.name;
+			playerButton.Content= name;
+			enemyButton.Content = type;
+			loadingBar.IsEnabled = false;
+			if(type.Equals("s"))
+			{
+				serverUDP();
+			}
+			else if (type.Equals("c"))
+			{
+				UdpSend();
+				//InitializeSockets();
+			}
 		}
 
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
+			DisconnectUdp();
 			this.Frame.GoBack();
 		}
 
-		async private void WaitForData(StreamSocket socket)
+		private async void DisplayOutput(TextBlock textBlock, string message)
 		{
-			var dr = new DataReader(socket.InputStream);
-			var stringHeader = await dr.LoadAsync(4);
-
-			if (stringHeader == 0)
-			{
-				LogMessage(string.Format("Disconnected (from {0})", socket.Information.RemoteHostName.DisplayName));
-				return;
-			}
-
-			int strLength = dr.ReadInt32();
-
-			uint numStrBytes = await dr.LoadAsync((uint)strLength);
-			string msg = dr.ReadString(numStrBytes);
-
-			LogMessage(string.Format("Received (from {0}): {1}", socket.Information.RemoteHostName.DisplayName, msg));
-
-			WaitForData(socket);
+			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => textBlock.Text += message);
 		}
 
-		async private void Connect(object sender, RoutedEventArgs e)
+		private async void serverUDP()
 		{
 			try
 			{
-				await _socket.ConnectAsync(new HostName("31.183.54.133"), "7");
-				LogMessage(string.Format("Connected to {0}", _socket.Information.RemoteHostName.DisplayName));
-				WaitForData(_socket);
-				inTextBox.IsEnabled = sendButton.IsEnabled = true;
+				if (receiveSocket == null)
+				{
+					receiveSocket = new DatagramSocket();
+
+					// MessageReceived handler must be set before BindServiceAsync is called, if not
+					// "A method was called at an unexpected time. (Exception from HRESULT: 
+					// 0x8000000E)" exception is thrown.
+					receiveSocket.MessageReceived += OnMessageReceived;
+
+					// If port is already in used by another socket, "Only one usage of each socket
+					// address (protocol/network address/port) is normally permitted. (Exception from
+					// HRESULT: 0x80072740)" exception is thrown.
+					await receiveSocket.BindServiceNameAsync(port);
+					loadingBar.IsEnabled = true;
+					DisplayOutput(output, "Wait for another player");
+				}
 			}
 			catch (Exception ex)
 			{
-				LogMessage(string.Format("Connected false"));
-				inTextBox.IsEnabled = sendButton.IsEnabled = false;
+				DisplayOutput(output, "Error: server start, " + ex.ToString());
 			}
 		}
 
-		async private void Listen(object sender, RoutedEventArgs e)
+		private void DisconnectUdp()
 		{
-			_listener.ConnectionReceived += listenerConnectionReceived;
-			await _listener.BindServiceNameAsync("7");
-			LogMessage(string.Format("listening on {0}...", _listener.Information.LocalPort));
-		}
-
-		void listenerConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
-		{
-			_connections.Add(args.Socket);
-
-			LogMessage(string.Format("Incoming connection from {0}", args.Socket.Information.RemoteHostName.DisplayName));
-
-			WaitForData(args.Socket);
-		}
-
-		private void LogMessage(string message)
-		{
-			outTextBlock.Text = message;
-		}
-
-		private void Send(object sender, RoutedEventArgs e)
-		{
-			SendMessage(_socket, inTextBox.Text);
-			inTextBox.Text = "";
-		}
-
-		async private void SendMessage(StreamSocket socket, string message)
-		{
-			var writer = new DataWriter(socket.OutputStream);
-			var len = writer.MeasureString(message); // Gets the UTF-8 string length.
-			writer.WriteInt32((int)len);
-			writer.WriteString(message);
-			var ret = await writer.StoreAsync();
-			writer.DetachStream();
-
-			//LogMessage(string.Format("Sent (to {0}) {1}", socket.Information.RemoteHostName.DisplayName, message));
-		}
-
-		private void Reply(object sender, RoutedEventArgs e)
-		{
-			foreach (var sock in _connections)
+			if (receiveSocket != null)
 			{
-				SendMessage(sock, inTextBox.Text);
+				receiveSocket.Dispose();
+				receiveSocket = null;
+				DisplayOutput(output, "Disconnected.");
 			}
 		}
 
-		private void inTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+		private void OnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
-			if (e.Key == Windows.System.VirtualKey.Enter)
+			try
 			{
-				SendMessage(_socket, inTextBox.Text);
-				inTextBox.Text = "";
+				DataReader reader = args.GetDataReader();
+				reader.InputStreamOptions = InputStreamOptions.Partial;
+
+				// LoadAsync not needed. The reader comes already loaded.
+
+				// If called by a 'Udp send socket', next line throws an exception because message was not received.
+
+				// If remote peer didn't received message, "An existing connection was forcibly
+				// closed by the remote host. (Exception from HRESULT: 0x80072746)" exception is
+				// thrown. Maybe only when using ConenctAsync(), not GetOutputStreamAsync().
+				uint bytesRead = reader.UnconsumedBufferLength;
+				string message = reader.ReadString(bytesRead);
+
+				DisplayOutput(output, "Message received from [" +
+					args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
+				this.message = message;
+			}
+			catch (Exception ex)
+			{
+				DisplayOutput(output, "Peer didn't receive message.");
 			}
 		}
+
+		bool correctName(string nameOtherPlayer)
+		{
+			if(this.name ==nameOtherPlayer)
+				return false;
+			else
+				return true;
+
+		}
+		//
+		// UDP send.
+		//
+
+		private async void UdpSend()
+		{
+			DatagramSocket sendSocket = new DatagramSocket();
+
+			// Even when we do not except any response, this handler is called if any error occurrs.
+			sendSocket.MessageReceived += OnMessageReceived;
+
+			try
+			{
+				await sendSocket.ConnectAsync(new HostName("192.168.0.6"), "2704");
+				// DatagramSocket.ConnectAsync() vs DatagramSocket.GetOutputStreamAsync()?
+				// Use DatagramSocket.GetOutputStreamAsync() if datagrams are sent to multiple
+				// GetOutputStreamAsync() does DNS resolution first.
+				// If remote host does not exist, "No such host is known. (Exception from HRESULT: 0x80072AF9)"
+				// exception is thrown.
+				// If remote host is not listening on the specified host, "An existing connection was forcibly
+				// closed by the remote host. (Exception from HRESULT: 0x80072746)" exception is thrown.
+
+				string message = name;
+				DataWriter writer = new DataWriter(sendSocket.OutputStream);
+
+				// This is useless in this sample. Just a friendly remainder.
+				uint messageLength = writer.MeasureString(message);
+
+				writer.WriteString(message);
+
+				uint bytesWritten = await writer.StoreAsync();
+
+				Debug.Assert(bytesWritten == messageLength);
+
+				DisplayOutput(output, "Message sent: " + message);
+			}
+			catch (Exception ex)
+			{
+				DisplayOutput(output, ex.ToString());
+			}
+		}
+
+		//private void inTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+		//{
+		//	if (e.Key == Windows.System.VirtualKey.Enter)
+		//	{
+		//		SendMessage(_socket, inTextBox.Text);
+		//		inTextBox.Text = "";
+		//	}
+		//}
 
 		private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
 		{
@@ -158,5 +215,17 @@ namespace testUniveralApp
 				playerButton.Margin = new Thickness(playerButton.Margin.Left + speedPlayer, playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
 			}
 		}
-    }
+
+		private void playerButton_PointerMoved(object sender, PointerRoutedEventArgs e)
+		{
+			PointerPoint point = e.GetCurrentPoint(this);
+			playerButton.Margin = new Thickness(point.Position.X - (playerButton.Width / 2.0), playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
+			output.Text = point.Position.X.ToString();
+		}
+
+		private void playPanel_Loaded(object sender, RoutedEventArgs e)
+		{
+			playerButton.Margin = new Thickness(0, playPanel.ActualHeight - (playerButton.Height), playerButton.Margin.Right, playerButton.Margin.Bottom);
+		}
+	}
 }

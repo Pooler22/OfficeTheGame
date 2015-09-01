@@ -6,37 +6,38 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" KeyDown="Grid_KeyDown">
+
     <Grid Grid.Row="3" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="10*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid x:Name="controlPanel">
+        <Grid x:Name="controlPanel" Grid.Column="3" MaxHeight="56">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Click="Button_Click_Back_To_MainPage" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Top" Margin="0"/>
-            <Button x:Name="conntctButton" Content="Connect" Click="Connect" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Top" Margin="0" Grid.Column="1"/>
-            <TextBlock x:Name="playerName" TextWrapping="Wrap" Text="TextBlock" Margin="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <TextBlock x:Name="enemyName" TextWrapping="Wrap" Text="TextBlock" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <Button x:Name="backButton" Content="Pause" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Stretch" Margin="0"/>
+            <Button x:Name="quitButton" Content="Quit" Click="Button_Click_Back_To_MainPage" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Stretch" Margin="0" Grid.Column="1"/>
         </Grid>
-        <StackPanel x:Name="playPanel" UseLayoutRounding="True" Margin="0,0,0,1" Grid.RowSpan="2" Grid.Row="1">
-            <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalContentAlignment="Top" Margin="0,0,1166,0" Width="200" Height="38" />
-            <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="10" RenderTransformOrigin="0.5,0.5" Width="10">
+        <Canvas x:Name="playPanel" UseLayoutRounding="True" Margin="0,0,0,1" Grid.Row="1" ScrollViewer.VerticalScrollBarVisibility="Disabled" Width="{StaticResource playPanelWidth}" Loaded="playPanel_Loaded">
+            <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Top" HorizontalAlignment="Stretch" VerticalContentAlignment="Top" Margin="0" Width="200" Height="50" Canvas.Left="583" />
+            <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="30" RenderTransformOrigin="0.5,0.5" Width="30" Canvas.Left="664" Canvas.Top="102">
                 <Ellipse.RenderTransform>
                     <CompositeTransform TranslateX="6"/>
                 </Ellipse.RenderTransform>
             </Ellipse>
-            <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Margin="0,0,1166,0" Padding="0" Width="200" Height="38"/>
-        </StackPanel>
+            <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButton_PointerMoved"/>
+            <TextBlock x:Name="output" Canvas.Left="13" TextWrapping="Wrap" Text="" Canvas.Top="232" Height="181" Width="687"/>
+        </Canvas>
         <StackPanel x:Name="massage" VerticalAlignment="Bottom" Grid.Row="2" Grid.RowSpan="2">
-            <TextBlock x:Name="outTextBlock" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-            <TextBox x:Name="inTextBox" KeyDown="inTextBox_KeyDown" IsEnabled="False" TextAlignment="Center" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom"/>
-            <Button x:Name="sendButton" Content="Send" Click="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom"/>
+            <ProgressBar x:Name="loadingBar" Height="10" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" IsIndeterminate="True" IsEnabled="False"/>
+            <ScrollViewer>
+                <TextBlock x:Name="outTextBlock" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="100" TextWrapping="Wrap" FontSize="14"/>
+            </ScrollViewer>
+            <TextBox x:Name="inTextBox" IsEnabled="False" TextAlignment="Center" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="50"/>
+            <Button x:Name="sendButton" Content="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Height="50"/>
         </StackPanel>
         <FlipView HorizontalAlignment="Left" Margin="653,-72,0,0" VerticalAlignment="Top"/>
     </Grid>
