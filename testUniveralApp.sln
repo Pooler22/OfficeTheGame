@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testUniveralApp.Windows", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testUniveralApp.WindowsPhone", "testUniveralApp\testUniveralApp.WindowsPhone\testUniveralApp.WindowsPhone.csproj", "{74964F1D-537D-4D44-90C3-7A6E767E3AC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}"
-EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		testUniveralApp\testUniveralApp.Shared\testUniveralApp.Shared.projitems*{f485edaa-5955-41e3-a934-0bad63e265a5}*SharedItemsImports = 4
@@ -74,16 +72,6 @@ Global
 		{74964F1D-537D-4D44-90C3-7A6E767E3AC3}.Release|x86.ActiveCfg = Release|x86
 		{74964F1D-537D-4D44-90C3-7A6E767E3AC3}.Release|x86.Build.0 = Release|x86
 		{74964F1D-537D-4D44-90C3-7A6E767E3AC3}.Release|x86.Deploy.0 = Release|x86
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Release|ARM.ActiveCfg = Release|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Release|x64.ActiveCfg = Release|Any CPU
-		{B0EE956B-8AE9-45F0-A3BA-C2DC229EDB0A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,7 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="10*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="4*"/>
         </Grid.RowDefinitions>
         <Grid x:Name="controlPanel" Grid.Column="3" MaxHeight="56">
             <Grid.ColumnDefinitions>
@@ -31,9 +31,9 @@
             <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButton_PointerMoved"/>
         </Canvas>
         <StackPanel x:Name="massage" VerticalAlignment="Bottom" Grid.Row="2" Grid.RowSpan="2">
-            <ProgressBar x:Name="loadingBar" Height="10" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Stretch" IsIndeterminate="True" IsEnabled="False"/>
-            <ScrollViewer>
-                <TextBlock x:Name="outTextBlock" Text="" VerticalAlignment="Bottom" HorizontalAlignment="Left" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="100" TextWrapping="Wrap" FontSize="14"/>
+            <ProgressBar x:Name="loadingBar" Height="10" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Top" IsIndeterminate="True" IsEnabled="False"/>
+            <ScrollViewer x:Name="ScrollViewer" VerticalContentAlignment="Top" HorizontalScrollBarVisibility="Auto">
+                <StackPanel x:Name="loadingStackPanel" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
             </ScrollViewer>
             <TextBox x:Name="inTextBox" IsEnabled="False" TextAlignment="Center" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="50"/>
             <Button x:Name="sendButton" Content="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Height="50"/>

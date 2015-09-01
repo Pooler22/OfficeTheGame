@@ -34,6 +34,8 @@ namespace testUniveralApp
 		string type{ get; set; }
 		string message;
 		DatagramSocket receiveSocket;
+		StreamSocketListener listener = null;
+		private StreamSocket socket = null;
 		String ipAddress, port;
 		ConnectionProfile connectionProfile;
 				
@@ -43,7 +45,7 @@ namespace testUniveralApp
 			message = null;
 			speedPlayer = 10;
 			receiveSocket = null;
-			ipAddress = "224.0.0.3";
+			ipAddress = "193.168.1.3";
 			port = "2704";
 			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
 		}
@@ -60,6 +62,8 @@ namespace testUniveralApp
 			if(type.Equals("s"))
 			{
 				serverUDP();
+				Task.Delay(100);
+				UdpSend(name);
 			}
 			else if (type.Equals("c"))
 			{
@@ -73,9 +77,10 @@ namespace testUniveralApp
 			this.Frame.GoBack();
 		}
 
-		private async void DisplayoutTextBlock(TextBlock textBlock, string message)
+		private async void DisplayoutTextBlock(string message)
 		{
-			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => textBlock.Text += "\n" + message);
+			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => loadingStackPanel.Children.Add(new TextBlock(){Text = message}));
+			//await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => textBlock.Text += "\n" + message);
 		}
 
 		private async void serverUDP()
@@ -87,14 +92,14 @@ namespace testUniveralApp
 					receiveSocket = new DatagramSocket();
 					receiveSocket.MessageReceived += OnMessageReceived;
 					await receiveSocket.BindServiceNameAsync(port);
-					DisplayoutTextBlock(outTextBlock, "Wait for another player.");
+					DisplayoutTextBlock("Server start\nWait for another player.");
 					loadingBar.IsEnabled = true;
 				}
 			}
 			catch (Exception ex)
 			{
 				loadingBar.IsEnabled = false;
-				DisplayoutTextBlock(outTextBlock, "Error: server start, " + ex.ToString());
+				DisplayoutTextBlock("Error: server start, " + ex.ToString());
 			}
 		}
 
@@ -104,30 +109,8 @@ namespace testUniveralApp
 			{
 				receiveSocket.Dispose();
 				receiveSocket = null;
-				DisplayoutTextBlock(outTextBlock, "Disconnected.");
+				DisplayoutTextBlock("Disconnected.");
 			}
-		}
-
-		private void OnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
-		{
-			try
-			{
-				DataReader reader = args.GetDataReader();
-				reader.InputStreamOptions = InputStreamOptions.Partial;
-				uint bytesRead = reader.UnconsumedBufferLength;
-				string message = reader.ReadString(bytesRead);
-				DisplayoutTextBlock(outTextBlock, "Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
-				this.message = message;
-			}
-			catch (Exception ex)
-			{
-				DisplayoutTextBlock(outTextBlock, "Peer didn't receive message.");
-			}
-		}
-
-		bool correctName(string nameOtherPlayer)
-		{
-			return this.name.Equals(nameOtherPlayer);
 		}
 
 		private async void UdpSend(string message)
@@ -142,12 +125,34 @@ namespace testUniveralApp
 				writer.WriteString(message);
 				uint bytesWritten = await writer.StoreAsync();
 				Debug.Assert(bytesWritten == messageLength);
-				DisplayoutTextBlock(outTextBlock, "Message sent: " + message);
+				DisplayoutTextBlock("Message sent: " + message);
 			}
 			catch (Exception ex)
 			{
-				DisplayoutTextBlock(outTextBlock, ex.ToString());
+				DisplayoutTextBlock(ex.ToString());
 			}
+		}
+
+		private void OnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		{
+			try
+			{
+				DataReader reader = args.GetDataReader();
+				reader.InputStreamOptions = InputStreamOptions.Partial;
+				uint bytesRead = reader.UnconsumedBufferLength;
+				string message = reader.ReadString(bytesRead);
+				DisplayoutTextBlock("Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
+				this.message = message;
+			}
+			catch (Exception ex)
+			{
+				DisplayoutTextBlock("Peer didn't receive message.");
+			}
+		}
+
+		bool correctName(string nameOtherPlayer)
+		{
+			return this.name.Equals(nameOtherPlayer);
 		}
 
 		private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -166,7 +171,7 @@ namespace testUniveralApp
 		{
 			PointerPoint point = e.GetCurrentPoint(this);
 			playerButton.Margin = new Thickness(point.Position.X - (playerButton.Width / 2.0), playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
-			outTextBlock.Text = point.Position.X.ToString();
+			DisplayoutTextBlock(point.Position.X.ToString());
 		}
 
 		private void playPanel_Loaded(object sender, RoutedEventArgs e)
