@@ -30,13 +30,14 @@ namespace testUniveralApp
     public sealed partial class PlayPage : Page
     {
 		int speedPlayer;
+		int numberOfPlayer = 0;
 		string name { get; set; }
 		string type{ get; set; }
 		string ipAddress, port, message;
 		DatagramSocket receiveSocket;
+		DatagramSocket sendSocket;
 		DatagramSocket player1, player2;
 		ConnectionProfile connectionProfile;
-		int numberOfPlayer = 0;
 				
 		public PlayPage()
         {
@@ -49,25 +50,23 @@ namespace testUniveralApp
 			port = "2704";
 			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
 		}
-	
-		protected override void OnNavigatedTo(NavigationEventArgs e)
+
+		private async void DisplayMessages(string message)
 		{
-			this.name = e.Parameter as string;
-			this.type = name.Substring(0,1);
-			this.name = name.Substring(1);
-			playerButton.Content = name;
-			enemyButton.Content = type;
-			loadingBar.IsEnabled = false;
-			
-			if(type.Equals("s"))
-			{
-				startServer();
-				sendToServer("connect "+ name);
-			}
-			else if (type.Equals("c"))
-			{
-				sendToServer("connect " + name);
-			}
+			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+				() => loadingStackPanel.Children.Add(new TextBlock()
+				{
+					Text = type + ": " + message
+				}));
+		}
+
+		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)
+		{
+			playerButton.Margin = new Thickness(
+				e.GetCurrentPoint(this).Position.X - (playerButton.Width / 2.0),
+				playerButton.Margin.Top,
+				playerButton.Margin.Right,
+				playerButton.Margin.Bottom);
 		}
 
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
@@ -76,9 +75,65 @@ namespace testUniveralApp
 			this.Frame.GoBack();
 		}
 
-		private async void DisplayMessages(string message)
+		private void playerButtonMoveKeys(object sender, KeyRoutedEventArgs e)
 		{
-			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => loadingStackPanel.Children.Add(new TextBlock(){Text = type + ": " + message}));
+			if (e.Key == Windows.System.VirtualKey.Left)
+			{
+				playerButton.Margin = new Thickness(playerButton.Margin.Left - speedPlayer,
+					playerButton.Margin.Top,
+					playerButton.Margin.Right,
+					playerButton.Margin.Bottom);
+			}
+			else if (e.Key == Windows.System.VirtualKey.Right)
+			{
+				playerButton.Margin = new Thickness(playerButton.Margin.Left + speedPlayer,
+					playerButton.Margin.Top,
+					playerButton.Margin.Right,
+					playerButton.Margin.Bottom);
+			}
+		}
+
+		private void setStartPlayersPositions(object sender, RoutedEventArgs e)
+		{
+			playerButton.Margin = new Thickness(
+				0,
+				playPanel.ActualHeight - (playerButton.Height),
+				playerButton.Margin.Right,
+				playerButton.Margin.Bottom);
+			enemyButton.Margin = new Thickness(
+				0,
+				0,
+				enemyButton.Margin.Right,
+				enemyButton.Margin.Bottom);
+		}
+
+		private void send_Click(object sender, RoutedEventArgs e)
+		{
+			sendToServer("connect " + name.ToString(), ip.Text.ToString());
+		}
+
+
+
+
+	
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			this.name = e.Parameter as string;
+			this.type = name.Substring(0,1);
+			this.name = name.Substring(1);
+			playerButton.Content = name;
+			//enemyButton.Content = type;
+			loadingBar.IsEnabled = false;
+			
+			if(type.Equals("s"))
+			{
+				startServer();
+				//sendToServer("connect "+ name);
+			}
+			else if (type.Equals("c"))
+			{
+				//sendToServer("connect " + name);
+			}
 		}
 
 		private async void startServer()
@@ -91,12 +146,10 @@ namespace testUniveralApp
 					receiveSocket.MessageReceived += OnMessageReceivedS;
 					await receiveSocket.BindServiceNameAsync(port);
 					DisplayMessages("Server running. Wait for players.");
-					loadingBar.IsEnabled = true;
 				}
 			}
 			catch (Exception ex)
 			{
-				loadingBar.IsEnabled = false;
 				DisplayMessages("Error: server start, " + ex.ToString());
 			}
 		}
@@ -193,7 +246,6 @@ namespace testUniveralApp
 				DisplayMessages("Disconnected.");
 			}
 		}
-		DatagramSocket sendSocket;
 		private async void sendToServer(string message)
 		{
 			sendSocket = new DatagramSocket();
@@ -271,35 +323,7 @@ namespace testUniveralApp
 			}
 		}
 
-		private void Grid_KeyDown(object sender, KeyRoutedEventArgs e)
-		{
-			if (e.Key == Windows.System.VirtualKey.Left)
-			{
-				playerButton.Margin = new Thickness(playerButton.Margin.Left - speedPlayer, playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
-			}
-			else if (e.Key == Windows.System.VirtualKey.Right)
-			{
-				playerButton.Margin = new Thickness(playerButton.Margin.Left + speedPlayer, playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
-			}
-		}
 
-		private void playerButton_PointerMoved(object sender, PointerRoutedEventArgs e)
-		{
-			PointerPoint point = e.GetCurrentPoint(this);
-			playerButton.Margin = new Thickness(point.Position.X - (playerButton.Width / 2.0), playerButton.Margin.Top, playerButton.Margin.Right, playerButton.Margin.Bottom);
-			//DisplayMessages(point.Position.X.ToString());
-		}
 
-		private void playPanel_Loaded(object sender, RoutedEventArgs e)
-		{
-			playerButton.Margin = new Thickness(0, playPanel.ActualHeight - (playerButton.Height), playerButton.Margin.Right, playerButton.Margin.Bottom);
-			enemyButton.Margin = new Thickness(0, 0, enemyButton.Margin.Right, enemyButton.Margin.Bottom);
-		
-		}
-
-		private void send_Click(object sender, RoutedEventArgs e)
-		{
-			sendToServer("connect "+ name.ToString(), ip.Text.ToString());
-		}
 	}
 }
