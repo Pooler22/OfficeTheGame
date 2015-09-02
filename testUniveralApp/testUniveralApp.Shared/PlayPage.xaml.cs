@@ -34,7 +34,7 @@ namespace testUniveralApp
 		string name { get; set; }
 		string type{ get; set; }
 		string portServer, portClient, message;
-		DatagramSocket socketServer;
+		
 		DatagramSocket playerSocket;
 		Player player1, player2;
 		ConnectionProfile connectionProfile;
@@ -142,7 +142,13 @@ namespace testUniveralApp
 		}
 
 		//server
-		private async void startServer()
+		private async void initServer()
+		{
+			Task task = Task.Run(async () => { await this.startServer(); });
+			task.Wait();
+		}
+
+		private async Task startServer()
 		{
 			try
 			{
@@ -150,8 +156,8 @@ namespace testUniveralApp
 				{
 					socketServer = new DatagramSocket();
 					socketServer.MessageReceived += OnMessageReceivedFromClient;
-					DisplayMessages("Server: Running, ip:"+ GetLocalIPv4() + " port:" + portServer + ". Wait for players.");
 					await socketServer.BindServiceNameAsync(portServer);
+					DisplayMessages("Server: Running, ip:"+ GetLocalIPv4() + " port:" + portServer + ". Wait for players.");
 				}
 			}
 			catch (Exception ex)
@@ -331,6 +337,6 @@ namespace testUniveralApp
 		public string ipAdress { get; set; }
 		public string port { get; set; }
 		public double positionPlayer { get; set; }
-		public double positionEnemy { get; set; }
+		public double positionPlayer2 { get; set; }
 	}
 }
