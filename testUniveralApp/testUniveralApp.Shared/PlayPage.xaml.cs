@@ -53,11 +53,11 @@ namespace testUniveralApp
 
 		private async void DisplayMessages(string message)
 		{
-			await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-				() => loadingStackPanel.Children.Add(new TextBlock()
-				{
-					Text = type + ": " + message
-				}));
+			await Dispatcher.RunIdleAsync((unused) =>
+			{
+				view.Items.Add(message);
+				view.ScrollIntoView(message);
+			});
 		}
 
 		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)

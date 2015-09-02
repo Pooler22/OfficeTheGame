@@ -34,13 +34,15 @@
             <TextBox x:Name="ip" Canvas.Left="10" TextWrapping="Wrap" Text="192.168.1.101" Canvas.Top="102" Width="95"/>
             <Button x:Name="send" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="12" Canvas.Top="155" Click="send_Click"/>
         </Canvas>
-        <StackPanel x:Name="massage" VerticalAlignment="Bottom" Grid.Row="3" Grid.RowSpan="2">
-            <ScrollViewer x:Name="ScrollViewer" VerticalContentAlignment="Top" HorizontalScrollBarVisibility="Auto">
-                <StackPanel x:Name="loadingStackPanel" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
-            </ScrollViewer>
-            <TextBox x:Name="inTextBox" IsEnabled="False" TextAlignment="Center" VerticalContentAlignment="Bottom" VerticalAlignment="Bottom" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="50"/>
-            <Button x:Name="sendButton" Content="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" VerticalContentAlignment="Bottom" Height="50"/>
-        </StackPanel>
-        <FlipView HorizontalAlignment="Left" Margin="653,-72,0,0" VerticalAlignment="Top"/>
+        <Grid x:Name="massage" Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ListView x:Name="view" ScrollViewer.HorizontalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0" />
+            <TextBox x:Name="inTextBox" IsEnabled="False" TextAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="50" Margin="0" Grid.Row="1"/>
+            <Button x:Name="sendButton" Content="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="50" Margin="0" Grid.Row="2"/>
+        </Grid>
     </Grid>
 </Page>
