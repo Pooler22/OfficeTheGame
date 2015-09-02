@@ -29,6 +29,8 @@
                 </Ellipse.RenderTransform>
             </Ellipse>
             <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButton_PointerMoved"/>
+            <TextBox x:Name="ip" Canvas.Left="10" TextWrapping="Wrap" Text="192.168.1.101" Canvas.Top="102" Width="95"/>
+            <Button x:Name="send" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="12" Canvas.Top="155" Click="send_Click"/>
         </Canvas>
         <StackPanel x:Name="massage" VerticalAlignment="Bottom" Grid.Row="2" Grid.RowSpan="2">
             <ProgressBar x:Name="loadingBar" Height="10" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Top" IsIndeterminate="True" IsEnabled="False"/>
