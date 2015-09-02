@@ -31,8 +31,9 @@
                 </Ellipse.RenderTransform>
             </Ellipse>
             <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer"/>
-            <TextBox x:Name="ip" Canvas.Left="10" TextWrapping="Wrap" Text="192.168.1.101" Canvas.Top="102" Width="95"/>
-            <Button x:Name="send" Content="Button" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="12" Canvas.Top="155" Click="send_Click"/>
+            <TextBox x:Name="ip" Canvas.Left="10" TextWrapping="Wrap" Text="192.168.1.102" Canvas.Top="102" Width="141"/>
+            <Button x:Name="send" Content="Send" HorizontalAlignment="Left" VerticalAlignment="Top" Canvas.Left="12" Canvas.Top="204" Click="send_Click"/>
+            <TextBox x:Name="portTB" Canvas.Left="10" TextWrapping="Wrap" Text="2704" Canvas.Top="142" Width="141"/>
         </Canvas>
         <Grid x:Name="massage" Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
             <Grid.RowDefinitions>

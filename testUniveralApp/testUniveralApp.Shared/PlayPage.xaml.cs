@@ -33,22 +33,51 @@ namespace testUniveralApp
 		int numberOfPlayer = 0;
 		string name { get; set; }
 		string type{ get; set; }
-		string ipAddress, port, message;
-		DatagramSocket receiveSocketServer;
-		DatagramSocket sendSocket;
-		DatagramSocket player1, player2;
+		string portServer, portClient, message;
+		DatagramSocket socketServer;
+		DatagramSocket playerSocket;
+		Player player1, player2;
 		ConnectionProfile connectionProfile;
-				
+		bool play = false;
+	
 		public PlayPage()
         {
             this.InitializeComponent();
-			
+
 			speedPlayer = 10;
 			message = null;
-			receiveSocketServer = null;
-			ipAddress = "192.168.1.101";
-			port = "2704";
+			player1 = null;
+			player2 = null;
+			socketServer = null;
+			portServer = "2704";
+			portClient = "2705";
+			player1 = new Player();
+			player2 = new Player();
 			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+		}
+
+		//page
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			this.name = e.Parameter as string;
+			this.type = name.Substring(0, 1);
+			this.name = name.Substring(1);
+			playerButton.Content = name;
+			//enemyButton.Content = type;
+			loadingBar.IsEnabled = false;
+			if (type.Equals("s"))
+			{
+				startServer();
+				Task.WaitAll();
+				startClient();
+				Task.WaitAll();
+				sendFromClient("connect " + name, GetLocalIPv4(), portServer);
+			}
+			else if (type.Equals("c"))
+			{
+				startClient();
+				//sendFromClient("connect " + name, GetLocalIPv4(), portClient);
+			}
 		}
 
 		private async void DisplayMessages(string message)
@@ -109,43 +138,20 @@ namespace testUniveralApp
 
 		private void send_Click(object sender, RoutedEventArgs e)
 		{
-			sendToClient("connect " + name.ToString(), ip.Text.ToString());
+			sendFromClient("connect " + name.ToString(), ip.Text.ToString(), portTB.Text);
 		}
 
-
-
-
-	
-		protected override void OnNavigatedTo(NavigationEventArgs e)
-		{
-			this.name = e.Parameter as string;
-			this.type = name.Substring(0,1);
-			this.name = name.Substring(1);
-			playerButton.Content = name;
-			//enemyButton.Content = type;
-			loadingBar.IsEnabled = false;
-			
-			if(type.Equals("s"))
-			{
-				startServer();
-				sendToClient("connect " + name, GetLocalIPv4());
-			}
-			else if (type.Equals("c"))
-			{
-				//sendToClient("connect " + name);
-			}
-		}
-
+		//server
 		private async void startServer()
 		{
 			try
 			{
-				if (receiveSocketServer == null)
+				if (socketServer == null)
 				{
-					receiveSocketServer = new DatagramSocket();
-					receiveSocketServer.MessageReceived += OnMessageReceivedToServer;
-					DisplayMessages("Server: Running. Wait for players.");
-					await receiveSocketServer.BindServiceNameAsync(port);
+					socketServer = new DatagramSocket();
+					socketServer.MessageReceived += OnMessageReceivedFromClient;
+					DisplayMessages("Server: Running, ip:"+ GetLocalIPv4() + " port:" + portServer + ". Wait for players.");
+					await socketServer.BindServiceNameAsync(portServer);
 				}
 			}
 			catch (Exception ex)
@@ -153,8 +159,8 @@ namespace testUniveralApp
 				DisplayMessages("Server: Error: server start, " + ex.ToString());
 			}
 		}
-		
-		private void OnMessageReceivedToServer(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+
+		private void OnMessageReceivedFromClient(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
 			try
 			{
@@ -166,50 +172,93 @@ namespace testUniveralApp
 				var array = message.Split(' ').Select(s => s.Trim()).ToArray();
 				if (array[0].Equals("connect"))
 				{
-					DisplayMessages("Player " + array[1] + " connected " + ++numberOfPlayer);
+					DisplayMessages("Server: Player " + array[1] + " connected " + ++numberOfPlayer);
 					if (numberOfPlayer == 1)
 					{
 						sendFromServer("You are connected!", args.RemoteAddress.DisplayName, args.RemotePort);
+						player1.name = array[1];
+						player1.ipAdress = args.RemoteAddress.DisplayName;
+						player1.port = args.RemotePort;
+						sendFromServer("play", player1.ipAdress, player1.port);
 					}
 					else if (numberOfPlayer == 2)
 					{
 						sendFromServer("You are connected!", args.RemoteAddress.DisplayName, args.RemotePort);
+						player2.name = array[1];
+						player2.ipAdress = args.RemoteAddress.DisplayName;
+						player2.port = args.RemotePort;
+						sendFromServer("play", player1.ipAdress, player1.port);
+						sendFromServer("play", player2.ipAdress, player2.port);
 					}
-					else
-					{
-						//TODO server busy 
-					}
+
 				}
-				this.message = message;
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Peer didn't receive message.");
+				DisplayMessages("Server: Peer didn't receive message." + ex.ToString());
 			}
 		}
 		
 		private async void sendFromServer(string message, string adress, string port)
 		{
-			DatagramSocket sendSocket = new DatagramSocket();
-			sendSocket.MessageReceived += OnMessageReceivedToClient;
+
+			socketServer.MessageReceived += OnMessageReceivedFromClient;
 			try
 			{
-				await sendSocket.ConnectAsync(new HostName(adress), port);
-				DataWriter writer = new DataWriter(sendSocket.OutputStream);
+				await socketServer.ConnectAsync(new HostName(adress), port);
+				DataWriter writer = new DataWriter(socketServer.OutputStream);
 				uint messageLength = writer.MeasureString(message);
 				writer.WriteString(message);
 				uint bytesWritten = await writer.StoreAsync();
 				Debug.Assert(bytesWritten == messageLength);
-				DisplayMessages("Message sent: " + message);
+				DisplayMessages("Server: Message sent: " + message + " to: " + adress + ", port: " + port);
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages(ex.ToString());
+				DisplayMessages("sERVER: sendFromServer " + ex.ToString());
+			}
+		}
+
+		//client
+		private async void startClient()
+		{
+			try
+			{
+				if (playerSocket == null)
+				{
+					playerSocket = new DatagramSocket();
+					playerSocket.MessageReceived += OnMessageReceivedFromServer;
+					DisplayMessages("Client: Running, ip:" + GetLocalIPv4() + " port:" + portClient);
+					await playerSocket.BindServiceNameAsync(portClient);
+				}
+			}
+			catch (Exception ex)
+			{
+				DisplayMessages("Client: Error: client start, " + ex.ToString());
 			}
 		}
 
 
-		private void OnMessageReceivedToClient(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		private async void sendFromClient(string message, string adress, string port)
+		{
+			playerSocket.MessageReceived += OnMessageReceivedFromServer;
+			try
+			{
+				await playerSocket.ConnectAsync(new HostName(adress), port);
+				DataWriter writer = new DataWriter(playerSocket.OutputStream);
+				uint messageLength = writer.MeasureString(message);
+				writer.WriteString(message);
+				uint bytesWritten = await writer.StoreAsync();
+				Debug.Assert(bytesWritten == messageLength);
+				DisplayMessages("Player Message sent: " + message + " to: " + adress + ", port: " + port);
+			}
+			catch (Exception ex)
+			{
+				DisplayMessages("Client: sendFromClient " + ex.ToString());
+			}
+		}
+
+		private void OnMessageReceivedFromServer(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
 			try
 			{
@@ -217,36 +266,24 @@ namespace testUniveralApp
 				reader.InputStreamOptions = InputStreamOptions.Partial;
 				uint bytesRead = reader.UnconsumedBufferLength;
 				string message = reader.ReadString(bytesRead);
-				DisplayMessages("Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
-				this.message = message;
+				DisplayMessages("Player: Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
+				//actuallPosition();
+				if(play)
+				{ 
+					sendFromClient("x " + ball.Margin.Left, GetLocalIPv4(), portServer);
+				}
+				else if(message.Equals("play"))
+				{
+					play = true;
+				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Peer didn't receive message.");
+				DisplayMessages("Player: Peer didn't receive message. " + ex.ToString());
 			}
 		}
 
-		private async void sendToClient(string message, string ip)
-		{
-			DatagramSocket sendSocket = new DatagramSocket();
-			sendSocket.MessageReceived += OnMessageReceivedToClient;
-			try
-			{
-				await sendSocket.ConnectAsync(new HostName(ip), port);
-				DataWriter writer = new DataWriter(sendSocket.OutputStream);
-				uint messageLength = writer.MeasureString(message);
-				writer.WriteString(message);
-				uint bytesWritten = await writer.StoreAsync();
-				Debug.Assert(bytesWritten == messageLength);
-				DisplayMessages("Message sent: " + message);
-			}
-			catch (Exception ex)
-			{
-				DisplayMessages(ex.ToString());
-			}
-		}
-
-
+		//connection
 		public static string GetLocalIPv4()
 		{
 			var icp = NetworkInformation.GetInternetConnectionProfile();
@@ -273,12 +310,27 @@ namespace testUniveralApp
 
 		private void disconnectServer()
 		{
-			if (receiveSocketServer != null)
+			if (socketServer != null)
 			{
-				receiveSocketServer.Dispose();
-				receiveSocketServer = null;
+				socketServer.Dispose();
+				socketServer = null;
 				DisplayMessages("Disconnected.");
 			}
 		}
+	}
+	
+	public class Player
+	{
+		public Player()
+		{
+			name = System.String.Empty;
+			ipAdress = System.String.Empty;
+			port = System.String.Empty;
+		}
+		public string name { get; set; }
+		public string ipAdress { get; set; }
+		public string port { get; set; }
+		public double positionPlayer { get; set; }
+		public double positionEnemy { get; set; }
 	}
 }
