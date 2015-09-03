@@ -13,26 +13,30 @@ namespace testUniveralApp
 {
     class ConnectionTCP
     {
-		PlayPage playPage;
 		StreamSocketListener listener = null;
 		StreamSocket sender = null;
+		PlayPage playPage;
 		string name;
 
-		public ConnectionTCP(PlayPage playPage, string name, int portListener)
+		public ConnectionTCP(PlayPage playPage, string name)
 		{
 			this.playPage = playPage;
-			this.name = name;
-			
-			Task.Run(
-				async () =>
-				{
-					await StartListener(portListener);
-				}).Wait();
+			this.name = name;	
 		}
 
 		//listener
 
-		private async Task StartListener(int port)
+		public void initListener(int portListener)
+		{
+			Task.Run(
+				async () =>
+				{
+					await Listener(portListener);
+				})
+				.Wait();
+		}
+
+		private async Task Listener(int port)
 		{
 			try
 			{
@@ -116,16 +120,17 @@ namespace testUniveralApp
 
 		//sender
 
-		public void startSender(int portSender)
+		public void initSender(int portSender)
 		{
 			Task.Run(
 				async () =>
 				{
-					await StartSender(portSender);
-				}).Wait();
+					await Sender(portSender);
+				})
+				.Wait();
 		}
 
-		private async Task StartSender(int portSender)
+		private async Task Sender(int portSender)
 		{
 			try
 			{

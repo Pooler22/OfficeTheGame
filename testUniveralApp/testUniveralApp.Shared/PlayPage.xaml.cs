@@ -32,25 +32,14 @@ namespace testUniveralApp
 		int speedPlayer;
 		string name { get; set; }
 		string type{ get; set; }
-		string portServer, portClient, message;
-		Player player1, player2;
-		ConnectionProfile connectionProfile;
-		bool play = false;
+		
 		Server server;
-		Client client;
+		Client client, clientTest;
 	
 		public PlayPage()
         {
             this.InitializeComponent();
 			speedPlayer = 10;
-			message = null;
-			player1 = null;
-			player2 = null;
-			portServer = "2704";
-			portClient = "2705";
-			player1 = new Player();
-			player2 = new Player();
-			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -61,29 +50,32 @@ namespace testUniveralApp
 			//playerButton.Content = name;
 			//enemyButton.Content = type;
 			loadingBar.IsEnabled = false;
+			
 			if (type.Equals("s"))
 			{
 				server = new Server();
-				client = new Client();
+				server.initUDPLstener(this, 4000);
+				//client = new Client(name);
 
-				server.addForPlayer1Listener(this, 80);
-				client.initPlayerConnection(this, 81);
+				//server.addForPlayer1Listener(this, 80);
+				//client.initClientListener(this, 81);
 				
-				server.addForPlayer1Sender(81);
-				client.addServerConnection(80);
+				//server.addForPlayer1Sender(81);
+				//client.initClientSender(80);
 
-				server.sendToPlayer1("Wait for another player.");
+				//server.sendToPlayer1("Wait for another player.");
 			}
 			else if (type.Equals("c"))
 
 			{
-				client = new Client();
+				client = new Client(name);
+				client.initUDPSender(this, 4000);
 
-				server.addForPlayer2Listener(this, 82);
-				client.initPlayerConnection(this, 83);
+				//server.addForPlayer2Listener(this, 82);
+				//client.initClientListener(this, 83);
 
-				server.addForPlayer2Sender(83);
-				client.addServerConnection(82);
+				//server.addForPlayer2Sender(83);
+				//client.initClientSender(82);
 			}
 		}
 
@@ -171,6 +163,16 @@ namespace testUniveralApp
 		private void send_Click(object sender, RoutedEventArgs e)
 		{
 			//sendFromClient("connect " + name.ToString(), ip.Text.ToString(), portTB.Text);
+			clientTest = new Client(name);
+
+			server.addForPlayer2Listener(this, 82);
+			clientTest.initClientListener(this, 83);
+
+			server.addForPlayer2Sender(83);
+			clientTest.initClientSender(82);
+
+			server.sendToPlayer1("play");
+			server.sendToPlayer2("play");
 		}
 	}
 

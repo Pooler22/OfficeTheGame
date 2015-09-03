@@ -1,41 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Storage.Streams;
+using System.Linq;
+using System.IO;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using Windows.Networking.Connectivity;
+using System.Globalization;
 
 namespace testUniveralApp
 {
 	class ConnectionUDP
 	{
-
-	}
-	/*
-    class ConnectionUDP
-    {
-		private async void initServer()
+		DatagramSocket listener;
+		PlayPage playPage;
+		string name;
+		
+		public ConnectionUDP(PlayPage playPage, string name)
 		{
-			Task task = Task.Run(async () => { await this.startServer(); });
-			task.Wait();
+			this.playPage = playPage;
+			this.name = name;
 		}
 
-		private async Task startServer()
+		//Server
+
+		public void initServer(int port)
+		{
+			Task.Run(async 
+				() => 
+				{ 
+					await this.startServer(port); 
+				})
+				.Wait();
+		}
+
+		private async Task startServer(int port)
 		{
 			try
 			{
-				if (socketServer == null)
+				if (listener == null)
 				{
-					socketServer = new DatagramSocket();
-					socketServer.MessageReceived += OnMessageReceivedFromClient;
-					await socketServer.BindServiceNameAsync(portServer);
-					DisplayMessages("Server: Running, ip:" + GetLocalIPv4() + " portListener:" + portServer + ". Wait for players.");
+					listener = new DatagramSocket();
+					listener.MessageReceived += OnMessageReceived;
+					await listener.BindEndpointAsync(new HostName("255.255.255.255"), 4000.ToString());
+					DisplayMessages("Server UDP runing...");
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Server: Error: server start, " + ex.ToString());
+				DisplayMessages("Server UDP error: " + ex.ToString());
 			}
 		}
 
-		private void OnMessageReceivedFromClient(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		private void OnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
 			try
 			{
@@ -43,153 +64,91 @@ namespace testUniveralApp
 				reader.InputStreamOptions = InputStreamOptions.Partial;
 				uint bytesRead = reader.UnconsumedBufferLength;
 				string message = reader.ReadString(bytesRead);
-				DisplayMessages("Server: Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
-				var array = message.Split(' ').Select(s => s.Trim()).ToArray();
-				if (array[0].Equals("connect"))
-				{
-					DisplayMessages("Server: Player " + array[1] + " connected " + ++numberOfPlayer);
-					if (numberOfPlayer == 1)
-					{
-						sendFromServer("You are connected!", args.RemoteAddress.DisplayName, args.RemotePort);
-						player1.name = array[1];
-						player1.ipAdress = args.RemoteAddress.DisplayName;
-						player1.portListener = args.RemotePort;
-						sendFromServer("play", player1.ipAdress, player1.portListener);
-					}
-					else if (numberOfPlayer == 2)
-					{
-						sendFromServer("You are connected!", args.RemoteAddress.DisplayName, args.RemotePort);
-						player2.name = array[1];
-						player2.ipAdress = args.RemoteAddress.DisplayName;
-						player2.portListener = args.RemotePort;
-						sendFromServer("play", player1.ipAdress, player1.portListener);
-						sendFromServer("play", player2.ipAdress, player2.portListener);
-					}
-
-				}
+				DisplayMessages("Server UDP received: " + message);
+				sendFromClient(name, args.RemoteAddress.DisplayName, args.RemotePort);
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Server: Peer didn't receive message." + ex.ToString());
-			}
-		}
-
-		private async void sendFromServer(string message, string adress, string portListener)
-		{
-
-			socketServer.MessageReceived += OnMessageReceivedFromClient;
-			try
-			{
-				await socketServer.ConnectAsync(new HostName(adress), portListener);
-				DataWriter writer = new DataWriter(socketServer.OutputStream);
-				uint messageLength = writer.MeasureString(message);
-				writer.WriteString(message);
-				uint bytesWritten = await writer.StoreAsync();
-				Debug.Assert(bytesWritten == messageLength);
-				DisplayMessages("Server: Message sent: " + message + " to: " + adress + ", portListener: " + portListener);
-			}
-			catch (Exception ex)
-			{
-				DisplayMessages("sERVER: sendFromServer " + ex.ToString());
-			}
-		}
-
-		//client
-		private async void startClient()
-		{
-			try
-			{
-				if (playerSocket == null)
-				{
-					playerSocket = new DatagramSocket();
-					playerSocket.MessageReceived += OnMessageReceivedFromServer;
-					DisplayMessages("Client: Running, ip:" + GetLocalIPv4() + " portListener:" + portClient);
-					await playerSocket.BindServiceNameAsync(portClient);
-				}
-			}
-			catch (Exception ex)
-			{
-				DisplayMessages("Client: Error: client start, " + ex.ToString());
+				DisplayMessages("Server UDP didn't receive message. " + ex.ToString());
 			}
 		}
 
 		private async void sendFromClient(string message, string adress, string portListener)
 		{
-			playerSocket.MessageReceived += OnMessageReceivedFromServer;
+			listener.MessageReceived += OnMessageReceived;
 			try
 			{
-				await playerSocket.ConnectAsync(new HostName(adress), portListener);
-				DataWriter writer = new DataWriter(playerSocket.OutputStream);
+				await listener.ConnectAsync(new HostName(adress), portListener);
+				DataWriter writer = new DataWriter(listener.OutputStream);
 				uint messageLength = writer.MeasureString(message);
 				writer.WriteString(message);
 				uint bytesWritten = await writer.StoreAsync();
-				Debug.Assert(bytesWritten == messageLength);
-				DisplayMessages("Player Message sent: " + message + " to: " + adress + ", portListener: " + portListener);
+				DisplayMessages("Server UDP sent: " + message);
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Client: sendFromClient " + ex.ToString());
+				DisplayMessages("Server UDP sent error: " + ex.ToString());
 			}
 		}
 
-		private void OnMessageReceivedFromServer(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		//Client
+
+		public void initClient(int port)
 		{
-			try
+			Task.Run(async
+				() =>
 			{
-				DataReader reader = args.GetDataReader();
-				reader.InputStreamOptions = InputStreamOptions.Partial;
-				uint bytesRead = reader.UnconsumedBufferLength;
-				string message = reader.ReadString(bytesRead);
-				DisplayMessages("Player: Message received from [" + args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
-				//actuallPosition();
-				if (play)
-				{
-					sendFromClient("x " + ball.Margin.Left, GetLocalIPv4(), portServer);
-				}
-				else if (message.Equals("play"))
-				{
-					play = true;
-				}
-			}
-			catch (Exception ex)
-			{
-				DisplayMessages("Player: Peer didn't receive message. " + ex.ToString());
-			}
+				await SendMessage(port);
+			})
+				.Wait();
 		}
 
-		//connection
-		public static string GetLocalIPv4()
+		public async Task SendMessage(int port)
 		{
-			var icp = NetworkInformation.GetInternetConnectionProfile();
+			var socket = new DatagramSocket();
+			socket.Control.DontFragment = true;
+			socket.MessageReceived += SocketOnMessageReceived;
 
-			if (icp != null && icp.NetworkAdapter != null)
+			using (var stream = await socket.GetOutputStreamAsync(new HostName("255.255.255.255"), port.ToString()))
 			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
+				using (var writer = new DataWriter(stream))
 				{
-					// the ip address
-					return hostname.CanonicalName;
+					var data = Encoding.UTF8.GetBytes(name);
+					DisplayMessages("Client UDP send name " + name);
+					writer.WriteBytes(data);
+					writer.StoreAsync();
 				}
 			}
-
-			return null;
 		}
+
+		private async void SocketOnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		{
+			var result = args.GetDataStream();
+			var resultStream = result.AsStreamForRead(1024);
+
+			using (var reader = new StreamReader(resultStream))
+			{
+				var text = await reader.ReadToEndAsync();
+				DisplayMessages("Client UDP get " + text);
+			}
+		}
+		
+
 
 		private void disconnectServer()
 		{
-			if (socketServer != null)
+			if (listener != null)
 			{
-				socketServer.Dispose();
-				socketServer = null;
-				DisplayMessages("Disconnected.");
+				listener.Dispose();
+				listener = null;
+				DisplayMessages("Disconnected UDP.");
 			}
 		}
-    }*/
+
+		private void DisplayMessages(string message)
+		{
+			playPage.DisplayMessages(name + ": " + message);
+		}
+
+	}
 }
