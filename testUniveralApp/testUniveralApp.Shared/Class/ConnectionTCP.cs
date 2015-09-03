@@ -30,6 +30,8 @@ namespace testUniveralApp
 				}).Wait();
 		}
 
+		//listener
+
 		private async Task StartListener(int port)
 		{
 			try
@@ -112,6 +114,7 @@ namespace testUniveralApp
 			writer.DetachStream();
 		}
 
+		//sender
 
 		public void startSender(int portSender)
 		{
@@ -136,11 +139,11 @@ namespace testUniveralApp
 			}
 		}
 
-		private async void SendRequest()
+		public async void SendRequest(string request)
 		{
 			if (sender != null)
 			{
-				string request = "Are you ñoño? Can you tell me what time is it?\r\n";
+				request += "\r\n";
 				await Send(sender.OutputStream, request);
 
 				string response = await Read(sender.InputStream);

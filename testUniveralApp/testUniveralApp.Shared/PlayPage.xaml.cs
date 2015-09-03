@@ -46,13 +46,11 @@ namespace testUniveralApp
 			message = null;
 			player1 = null;
 			player2 = null;
-			socketServer = null;
 			portServer = "2704";
 			portClient = "2705";
 			player1 = new Player();
 			player2 = new Player();
 			connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -67,11 +65,25 @@ namespace testUniveralApp
 			{
 				server = new Server();
 				client = new Client();
+
+				server.addForPlayer1Listener(this, 80);
+				client.initPlayerConnection(this, 81);
+				
+				server.addForPlayer1Sender(81);
+				client.addServerConnection(80);
+
+				server.sendToPlayer1("Wait for another player.");
 			}
 			else if (type.Equals("c"))
 
 			{
 				client = new Client();
+
+				server.addForPlayer2Listener(this, 82);
+				client.initPlayerConnection(this, 83);
+
+				server.addForPlayer2Sender(83);
+				client.addServerConnection(82);
 			}
 		}
 

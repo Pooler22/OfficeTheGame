@@ -14,10 +14,14 @@ namespace testUniveralApp
 			
 		}
 
-		public void addServerConnection(PlayPage page)
+		public void initPlayerConnection(PlayPage page, int portListener)
 		{
-			toServer = new ConnectionTCP(page, "Client", 80);
-			toServer.startSender(82);
+			toServer = new ConnectionTCP(page, "Client", portListener);
+		}
+
+		public void addServerConnection(int portSender)
+		{
+			toServer.startSender(portSender);
 		}
     }
 }

@@ -20,16 +20,29 @@ namespace testUniveralApp
 
 		}
 
-		public void addPlayer1Connection(PlayPage page)
+		public void addForPlayer1Listener(PlayPage page, int portListener)
 		{
-			toClient1 = new ConnectionTCP(page, "Server", 80);
-			toClient1.startSender(82);
+			toClient1 = new ConnectionTCP(page, "Server", portListener);
 		}
 
-		public void addPlayer2Connection(PlayPage page)
+		public void addForPlayer2Listener(PlayPage page, int portListener)
 		{
-			toClient2 = new ConnectionTCP(page, "Server", 81);
-			toClient2.startSender(83);
+			toClient2 = new ConnectionTCP(page, "Server", portListener);
 		}
-    }
+
+		public void addForPlayer1Sender(int portSender)
+		{
+			toClient1.startSender(portSender);
+		}
+
+		public void addForPlayer2Sender(int portSender)
+		{
+			toClient2.startSender(portSender);
+		}
+		
+		public void sendToPlayer1(string message)
+		{
+			toClient1.SendRequest(message);
+		}
+	}
 }
