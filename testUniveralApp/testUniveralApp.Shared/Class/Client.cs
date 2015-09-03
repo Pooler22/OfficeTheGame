@@ -6,22 +6,31 @@ namespace testUniveralApp
 {
     class Client
     {
-		ConnectionTCP toServer;
+		string name;
+		ConnectionTCP toServerTCP;
 		ConnectionUDP brodcastDiscovery;
+		GameData data;
 
-		public Client()
+		public Client(string name)
 		{
-			
+			this.name = name;
 		}
 
-		public void initPlayerConnection(PlayPage page, int portListener)
+		public void initUDPSender(PlayPage page, int portListener)
 		{
-			toServer = new ConnectionTCP(page, "Client", portListener);
+			brodcastDiscovery = new ConnectionUDP(page, name);
+			brodcastDiscovery.initClient(portListener);
 		}
 
-		public void addServerConnection(int portSender)
+		public void initClientListener(PlayPage page, int portListener)
 		{
-			toServer.startSender(portSender);
+			toServerTCP = new ConnectionTCP(page, "Client");
+			toServerTCP.initListener(portListener);
+		}
+
+		public void initClientSender(int portSender)
+		{
+			toServerTCP.initSender(portSender);
 		}
     }
 }
