@@ -19,12 +19,16 @@ namespace testUniveralApp
 		DatagramSocket sender;
 		DatagramSocket listener;
 		PlayPage page;
-		string port;
+		string port, name;
+		byte[] bytes;
 
-		public UDPClient(PlayPage page, string port)
+		public UDPClient(PlayPage page, string port, string name)
 		{
 			this.page = page;
 			this.port = port;
+
+			bytes = new byte[name.Length * sizeof(char)];
+			System.Buffer.BlockCopy(name.ToCharArray(), 0, bytes, 0, bytes.Length);
 		}
 
 		public async void Start()
@@ -42,36 +46,24 @@ namespace testUniveralApp
 			}
 		}
 
-		private async void SocketOnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		private async void SocketOnMessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
 		{
-			var result = args.GetDataStream();
-			//var resultStream = result.AsStreamForRead();
-			var dataReader = new DataReader(result);
+			 try
+            {
+                DataReader reader = args.GetDataReader();
+                reader.InputStreamOptions = InputStreamOptions.Partial;
+                uint bytesRead = reader.UnconsumedBufferLength;
+                string message = reader.ReadString(bytesRead);
+                page.DisplayMessages( "Message received from [" +
+                    args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-			try
-			{
-				byte[] destination = new byte[4];
-				await dataReader.LoadAsync(4);
-				dataReader.ReadBytes(destination);
+				await SendMessage(bytes, args.RemoteAddress.ToString(), args.RemotePort);
+            }
+            catch (Exception ex)
+            {
+                page.DisplayMessages("Server didn't receive message." + ex.ToString());
+            }
 
-				await dataReader.LoadAsync(sizeof(byte));
-				byte msgType = dataReader.ReadByte();
-
-				await dataReader.LoadAsync(sizeof(Int32));
-				int length = dataReader.ReadInt32();
-
-				byte[] bData = new byte[Math.Max(length - 1, 0)];
-				await dataReader.LoadAsync((uint)length);
-				dataReader.ReadBytes(bData);
-
-				dataReader.Dispose();
-				page.DisplayMessages("Start received UDP Client");
-				if (OnDataReceived != null) OnDataReceived(destination, msgType, bData);
-			}
-			catch(Exception ex)
-			{
-				page.DisplayMessages("Error: Start received UDP Client" + ex.ToString());
-			}
 		}
 
 		public void Stop()
@@ -84,7 +76,7 @@ namespace testUniveralApp
 		{
 			sender = new DatagramSocket();
 			string _host = host[0].ToString() + "." + host[1].ToString() + "." + host[2].ToString() + "." + host[3].ToString();
-			using (var stream = await sender.GetOutputStreamAsync(new HostName(_host), port))
+			using (var stream = await sender.GetOutputStreamAsync(new HostName(_host), port.ToString()))
 			{
 				using (var writer = new DataWriter(stream))
 				{
@@ -95,6 +87,28 @@ namespace testUniveralApp
 				}
 			}
 			sender.Dispose();
+		}
+
+		private async Task SendMessage(byte[] message, string host, string port)
+		{
+			sender = new DatagramSocket();
+			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
+			{
+				using (var writer = new DataWriter(stream))
+				{
+					try
+					{
+						writer.WriteBytes(message);
+						await writer.StoreAsync();
+						page.DisplayMessages("Send Message");
+					}
+					catch(Exception ex)
+					{
+						page.DisplayMessages("Error Send Message");
+					}
+				}
+			}
+
 		}
 	}
 }

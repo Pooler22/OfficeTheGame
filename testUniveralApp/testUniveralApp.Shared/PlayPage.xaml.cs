@@ -56,7 +56,7 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				serverUDP = new UDPClient(this, portUDP);
+				serverUDP = new UDPClient(this, portUDP, name);
 				serverUDP.OnDataReceived += OnDataReceived;
 				serverUDP.Start();
 				
