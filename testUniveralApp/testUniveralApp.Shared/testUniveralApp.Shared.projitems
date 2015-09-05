@@ -20,6 +20,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Class\Server.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\ConnectionTCP.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\ConnectionUDP.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPClientFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

@@ -32,14 +32,18 @@ namespace testUniveralApp
 		int speedPlayer;
 		string name { get; set; }
 		string type{ get; set; }
-		
+		int portUDP;
 		Server server;
 		Client client, clientTest;
+
+		UDPClient _client;
+		UDPClientFinder _finder;
 	
 		public PlayPage()
         {
             this.InitializeComponent();
 			speedPlayer = 10;
+			portUDP = 4000;
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -47,14 +51,17 @@ namespace testUniveralApp
 			this.name = e.Parameter as string;
 			this.type = name.Substring(0, 1);
 			this.name = name.Substring(1);
-			//playerButton.Content = name;
-			//enemyButton.Content = type;
+
 			loadingBar.IsEnabled = false;
-			
+
 			if (type.Equals("s"))
 			{
-				server = new Server();
-				server.initUDPLstener(this, 4000);
+				_client = new UDPClient(this);
+				_client.OnDataReceived += _client_OnDataReceived;
+				_client.Start();
+				
+				//server = new Server(name);
+				//server.initUDPListener(this, portUDP);
 				//client = new Client(name);
 
 				//server.addForPlayer1Listener(this, 80);
@@ -64,12 +71,19 @@ namespace testUniveralApp
 				//client.initClientSender(80);
 
 				//server.sendToPlayer1("Wait for another player.");
+				
 			}
 			else if (type.Equals("c"))
 
 			{
-				client = new Client(name);
-				client.initUDPSender(this, 4000);
+				_finder = new UDPClientFinder();
+				_finder.OnClientFound += _finder_OnClientFound;
+				
+				//_finder.StartFinder();
+				//_finder.BroadcastIP();
+				
+				//client = new Client(name);
+				//client.initUDPFinder(this, portUDP);
 
 				//server.addForPlayer2Listener(this, 82);
 				//client.initClientListener(this, 83);
@@ -78,6 +92,37 @@ namespace testUniveralApp
 				//client.initClientSender(82);
 			}
 		}
+
+
+
+		void _finder_OnClientFound(byte[] clientIP)
+		{
+			DisplayMessages(clientIP.ToString());
+			SendUserData(clientIP);
+		}
+
+		private async void SendUserData(byte[] dest)
+		{
+			{
+				string str = "name";
+				byte[] bytes = new byte[str.Length * sizeof(char)];
+				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+				DisplayMessages(name.ToString());
+				await _client.SendMessage(0, bytes, dest);
+				await _client.SendMessage(1, bytes, dest);
+			}
+		}
+
+		private void _client_OnDataReceived(byte[] dest, byte msgType, byte[] data)
+		{
+			DisplayMessages(data.ToString());
+			SendUserData(dest);
+		}
+
+		private bool _discovery = false;
+
+
+
 
 		public async void DisplayMessages(string message)
 		{

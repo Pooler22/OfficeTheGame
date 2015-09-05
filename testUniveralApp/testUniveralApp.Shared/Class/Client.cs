@@ -16,10 +16,10 @@ namespace testUniveralApp
 			this.name = name;
 		}
 
-		public void initUDPSender(PlayPage page, int portListener)
+		public void initUDPFinder(PlayPage page, int portListener)
 		{
 			brodcastDiscovery = new ConnectionUDP(page, name);
-			brodcastDiscovery.initClient(portListener);
+			brodcastDiscovery.initUDPFinder(portListener);
 		}
 
 		public void initClientListener(PlayPage page, int portListener)
