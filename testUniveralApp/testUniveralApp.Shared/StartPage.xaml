@@ -8,8 +8,10 @@
     mc:Ignorable="d" KeyDown="Page_KeyDown">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid Margin="0" Grid.Row="4" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+        
+        <Grid Margin="0" Grid.Row="5" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -19,6 +21,7 @@
             <TextBox x:Name="nameInput" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name"  VerticalAlignment="Center" FontSize="24" Height="50" Margin="0" Grid.Row="1"/>
             <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Stretch" Width="200" Padding="0" VerticalAlignment="Center" FontSize="24" Margin="0" Grid.Row="2"/>
             <TextBlock x:Name="greetingOutput" Width="200" Height="50" RenderTransformOrigin="0.5,0.5" TextAlignment="Center" VerticalAlignment="Center" Margin="0" FontSize="20" Grid.Row="3"/>
+            <Button Content="Create another window" Click="CreateWindow" Grid.Row="4" HorizontalAlignment="Center"/>
         </Grid>
     </Grid>
 </Page>

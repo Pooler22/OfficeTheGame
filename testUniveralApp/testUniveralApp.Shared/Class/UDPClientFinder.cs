@@ -36,11 +36,9 @@ namespace testUniveralApp
 			var hostnames = NetworkInformation.GetHostNames();
 			foreach (var hn in hostnames)
 			{
-				//IanaInterfaceType == 71 => Wifi
-				//IanaInterfaceType == 6 => Ethernet (Emulator)
 				if (hn.IPInformation != null &&
-					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6))
+					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator)
 				{
 					string ipAddress = hn.DisplayName;
 					ipAddresses.Add(ipAddress);
@@ -70,12 +68,15 @@ namespace testUniveralApp
 				socket2 = new DatagramSocket();
 				socket2.MessageReceived += SocketOnMessageReceived;
 				await socket2.BindServiceNameAsync(port);
-
+				playPage.DisplayMessages("Client UDP Finder start");
 				//listener = new DatagramSocket();
 				//listener.MessageReceived += SocketOnMessageReceived;
 				//await listener.BindEndpointAsync(new HostName("0.0.0.0"), port);
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				playPage.DisplayMessages("Error: Client UDP Finder start" + ex.ToString());
+			}
 		}
 
 		public void StopFinder()

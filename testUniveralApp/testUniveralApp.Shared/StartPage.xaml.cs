@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -47,5 +50,37 @@ namespace testUniveralApp
 				this.Frame.Navigate(typeof(MainPage), nameInput.Text);
 			}
 		}
+
+		private void CreateWindow(object sender, RoutedEventArgs e)
+		{
+			CreateNewWindow();
+		}
+
+		public static async Task CreateNewWindow()
+		{
+			var newCoreAppView = CoreApplication.CreateNewView();
+			var appView = ApplicationView.GetForCurrentView();
+			await newCoreAppView.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () =>
+			{
+				var window = Window.Current;
+				var newAppView = ApplicationView.GetForCurrentView();
+
+#if WINDOWS_UAP
+                newAppView.SetPreferredMinSize(new Windows.Foundation.Size(400, 300));
+#endif
+				var frame = new Frame();
+				window.Content = frame;
+				frame.Navigate(typeof(StartPage));
+				window.Activate();
+
+				await ApplicationViewSwitcher.TryShowAsStandaloneAsync(newAppView.Id, ViewSizePreference.UseMore, appView.Id, ViewSizePreference.Default);
+
+#if WINDOWS_UAP
+                var success = newAppView.TryResizeView(new Windows.Foundation.Size(400, 400));
+#endif
+			});
+		}
+
+
     }
 }
