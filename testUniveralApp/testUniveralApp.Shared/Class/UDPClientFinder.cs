@@ -20,6 +20,7 @@ namespace testUniveralApp
 		public delegate void ClientFoundEvent(byte[] clientIP);
 
 		string port;
+		string portFinder;
 		DatagramSocket socket;
 		DatagramSocket socket2;
 		PlayPage playPage;
@@ -28,8 +29,61 @@ namespace testUniveralApp
 		{
 			this.port = port;
 			this.playPage = playPage;
+			portFinder = "4001";
 		}
 
+		public async void Start()
+		{
+			try
+			{
+				socket2 = new DatagramSocket();
+				socket2.MessageReceived += MessageReceived;
+				await socket2.BindServiceNameAsync(portFinder);
+				playPage.DisplayMessages("UDP Finder start");
+			}
+			catch (Exception ex)
+			{
+				playPage.DisplayMessages("Error: UDP Finder start " + ex.ToString());
+			}
+		}
+		
+		async void MessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		{
+			var result = args.GetDataStream();
+			var resultStream = result.AsStreamForRead(1024);
+
+			try
+			{
+				byte[] buffer = new byte[5];
+				byte[] message = IPMessage();
+				await resultStream.ReadAsync(buffer, 0, 5);
+				for (int i = 0; i <= 5; i++) //compare arrays
+				{
+					if (buffer[i] != message[i])
+					{
+						if (buffer[0] == 1 && OnClientFound != null)
+						{
+							await SendMessage(message,
+								args.RemoteAddress.ToString(), args.RemotePort);
+							OnClientFound(buffer.Skip(1).ToArray());
+							break;
+						}
+					}
+				}
+			}
+			catch
+			{ //TODO: Error handler
+			}
+		}
+
+		public void Stop()
+		{
+			if (socket != null) 
+				socket.Dispose();
+			if (socket2 != null) 
+				socket2.Dispose();
+		}
+		
 		public static string LocalIPAddress()
 		{
 			List<string> ipAddresses = new List<string>();
@@ -61,85 +115,37 @@ namespace testUniveralApp
 			}
 		}
 
-		public async void Start()
-		{
-			try
-			{
-				socket2 = new DatagramSocket();
-				socket2.MessageReceived += SocketOnMessageReceived;
-				await socket2.BindServiceNameAsync(port);
-				playPage.DisplayMessages("Client UDP Finder start");
-				//listener = new DatagramSocket();
-				//listener.MessageReceived += SocketOnMessageReceived;
-				//await listener.BindEndpointAsync(new HostName("0.0.0.0"), port);
-			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages("Error: Client UDP Finder start" + ex.ToString());
-			}
-		}
-
-		public void StopFinder()
-		{
-			if (socket != null) socket.Dispose();
-			if (socket2 != null) socket2.Dispose();
-		}
-
 		public async void BroadcastIP()
 		{
-			await SendMessage(IPMessage(), "255.255.255.255", port);
+			string str = "czesc";
+			byte[] bytes = new byte[str.Length * sizeof(char)];
+			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+			await SendMessage(bytes, "255.255.255.255", port);
 		}
 
-		private byte[] IPMessage()
-		{
-			//IP Address to byte()
-			string[] strIPTemp = LocalIPAddress().Split('.');
-			//if (strIPTemp.Length != 4) throw new Exception("Invalid IP Address");
-			return Enumerable.Range(0, 5).Select(x =>
-						(x == 0) ? (byte)1 : Convert.ToByte(strIPTemp[x - 1])).ToArray();
-		}
-
-		private async Task SendMessage(byte[] message, string host, string port)
+		async Task SendMessage(byte[] message, string host, string port)
 		{
 			socket = new DatagramSocket();
+
 			using (var stream = await socket.GetOutputStreamAsync(new HostName(host), port))
 			{
 				using (var writer = new DataWriter(stream))
 				{
 					writer.WriteBytes(message);
 					await writer.StoreAsync();
+					playPage.DisplayMessages("Finder send message");
 				}
 			}
 			socket.Dispose();
 		}
 
-		private async void SocketOnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		byte[] IPMessage()
 		{
-			var result = args.GetDataStream();
-			var resultStream = result.AsStreamForRead(1024);
-
-			try
-			{
-				byte[] buffer = new byte[5];
-				byte[] message = IPMessage();
-				await resultStream.ReadAsync(buffer, 0, 5);
-				for (int i = 0; i <= 5; i++) //compare arrays
-				{
-					if (buffer[i] != message[i])
-					{
-						if (buffer[0] == 1 && OnClientFound != null)
-						{
-							await SendMessage(message,
-								args.RemoteAddress.ToString(), args.RemotePort);
-							OnClientFound(buffer.Skip(1).ToArray());
-							break;
-						}
-					}
-				}
-			}
-			catch
-			{ //TODO: Error handler
-			}
+			//IP Address to byte()
+			string[] strIPTemp = LocalIPAddress().Split('.');
+			if (strIPTemp.Length != 4) throw new Exception("Invalid IP Address");
+			return Enumerable.Range(0, 5).Select(x =>
+						(x == 0) ? (byte)1 : Convert.ToByte(strIPTemp[x - 1])).ToArray();
 		}
 	}
 }

@@ -26,6 +26,7 @@ namespace testUniveralApp
 		{
 			this.page = page;
 			this.port = port;
+			this.name = name;
 
 			bytes = new byte[name.Length * sizeof(char)];
 			System.Buffer.BlockCopy(name.ToCharArray(), 0, bytes, 0, bytes.Length);
@@ -36,8 +37,8 @@ namespace testUniveralApp
 			try
 			{
 				listener = new DatagramSocket();
-				listener.MessageReceived += SocketOnMessageReceived;
 				await listener.BindServiceNameAsync(port);
+				listener.MessageReceived += MessageReceived;
 				page.DisplayMessages("Start UDP server");
 			}
 			catch (Exception ex)
@@ -46,23 +47,45 @@ namespace testUniveralApp
 			}
 		}
 
-		private async void SocketOnMessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
+		private async void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
 		{
 			 try
             {
-                DataReader reader = args.GetDataReader();
+				DataReader reader = args.GetDataReader();
+				reader.InputStreamOptions = InputStreamOptions.Partial;
+				page.DisplayMessages("start reveived");
+				// LoadAsync not needed. The reader comes already loaded.
+
+				// If called by a 'Udp send socket', next line throws an exception because message was not received.
+
+				// If remote peer didn't received message, "An existing connection was forcibly
+				// closed by the remote host. (Exception from HRESULT: 0x80072746)" exception is
+				// thrown. Maybe only when using ConenctAsync(), not GetOutputStreamAsync().
+				uint bytesRead = reader.UnconsumedBufferLength;
+				string message = reader.ReadString(bytesRead);
+
+				page.DisplayMessages("Message received from [" +
+					args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
+
+				 /*
+				 DataReader reader = args.GetDataReader();
                 reader.InputStreamOptions = InputStreamOptions.Partial;
                 uint bytesRead = reader.UnconsumedBufferLength;
                 string message = reader.ReadString(bytesRead);
                 page.DisplayMessages( "Message received from [" +
                     args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
+				reader.Dispose();
+
+				
 				await SendMessage(bytes, args.RemoteAddress.ToString(), args.RemotePort);
+				  * */
             }
             catch (Exception ex)
             {
                 page.DisplayMessages("Server didn't receive message." + ex.ToString());
             }
+			 
 
 		}
 

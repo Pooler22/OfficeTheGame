@@ -62,7 +62,7 @@ namespace testUniveralApp
 				}
 				else
 				{
-					_finder.StopFinder();
+					_finder.Stop();
 					_client.Stop();
 				}
 			}

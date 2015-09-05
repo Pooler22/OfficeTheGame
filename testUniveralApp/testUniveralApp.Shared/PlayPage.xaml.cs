@@ -37,7 +37,7 @@ namespace testUniveralApp
 		Server server;
 		Client client, clientTest;
 		UDPClient serverUDP;
-		UDPClientFinder finderServerUDP;
+		UDPClientFinder finderUDP;
 	
 		public PlayPage()
         {
@@ -73,10 +73,10 @@ namespace testUniveralApp
 			else if (type.Equals("c"))
 
 			{
-				finderServerUDP = new UDPClientFinder(this, portUDP);
-				finderServerUDP.OnClientFound += OnClientFound;
-				finderServerUDP.Start();
-				finderServerUDP.BroadcastIP();
+				finderUDP = new UDPClientFinder(this, portUDP);
+				finderUDP.OnClientFound += OnClientFound;
+				finderUDP.Start();
+				finderUDP.BroadcastIP();
 				
 				//client = new Client(name);
 				//client.initUDPFinder(this, portUDP);
