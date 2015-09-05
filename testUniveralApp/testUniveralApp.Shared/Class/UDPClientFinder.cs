@@ -22,7 +22,7 @@ namespace testUniveralApp
 		string port;
 		string portFinder;
 		DatagramSocket socket;
-		DatagramSocket socket2;
+		DatagramSocket listener;
 		PlayPage playPage;
 
 		public UDPClientFinder(PlayPage playPage, string port)
@@ -36,9 +36,9 @@ namespace testUniveralApp
 		{
 			try
 			{
-				socket2 = new DatagramSocket();
-				socket2.MessageReceived += MessageReceived;
-				await socket2.BindServiceNameAsync(portFinder);
+				listener = new DatagramSocket();
+				listener.MessageReceived += MessageReceived;
+				await listener.BindServiceNameAsync(portFinder);
 				playPage.DisplayMessages("UDP Finder start");
 			}
 			catch (Exception ex)
@@ -80,8 +80,8 @@ namespace testUniveralApp
 		{
 			if (socket != null) 
 				socket.Dispose();
-			if (socket2 != null) 
-				socket2.Dispose();
+			if (listener != null) 
+				listener.Dispose();
 		}
 		
 		public static string LocalIPAddress()
@@ -117,7 +117,7 @@ namespace testUniveralApp
 
 		public async void BroadcastIP()
 		{
-			string str = "czesc";
+			string str = listener.Information.LocalPort;
 			byte[] bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 			await SendMessage(bytes, "255.255.255.255", port);

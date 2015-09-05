@@ -51,7 +51,8 @@ namespace testUniveralApp
 		{
 			 try
             {
-				DataReader reader = args.GetDataReader();
+				/*
+				 DataReader reader = args.GetDataReader();
 				reader.InputStreamOptions = InputStreamOptions.Partial;
 				page.DisplayMessages("start reveived");
 				// LoadAsync not needed. The reader comes already loaded.
@@ -66,8 +67,8 @@ namespace testUniveralApp
 
 				page.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
-
-				 /*
+				 */
+				 
 				 DataReader reader = args.GetDataReader();
                 reader.InputStreamOptions = InputStreamOptions.Partial;
                 uint bytesRead = reader.UnconsumedBufferLength;
@@ -77,9 +78,9 @@ namespace testUniveralApp
 
 				reader.Dispose();
 
+
+				await SendMessage(bytes, args.RemoteAddress.ToString(), message);
 				
-				await SendMessage(bytes, args.RemoteAddress.ToString(), args.RemotePort);
-				  * */
             }
             catch (Exception ex)
             {
