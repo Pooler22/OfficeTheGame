@@ -11,11 +11,12 @@ namespace testUniveralApp
 	{
 		UDPClient _client;
 		UDPClientFinder _finder;
-
-		public UDPHelper()
+		PlayPage page;
+		public UDPHelper(PlayPage page, string port)
 		{
-			//_client = new UDPClient(this);
-			_finder = new UDPClientFinder();
+			this.page = page;
+			//serverUDP = new UDPClient(this);
+			_finder = new UDPClientFinder(page, port);
 			_finder.OnClientFound += _finder_OnClientFound;
 			_client.OnDataReceived += _client_OnDataReceived;
 		}
@@ -55,7 +56,7 @@ namespace testUniveralApp
 				_discovery = value;
 				if (_discovery)
 				{
-					_finder.StartFinder();
+					_finder.Start();
 					_finder.BroadcastIP();
 					_client.Start();
 				}

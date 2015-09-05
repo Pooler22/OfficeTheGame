@@ -16,35 +16,34 @@ namespace testUniveralApp
 		public delegate void DataReceivedEvent(byte[] dest, byte msgType, byte[] data);
 		public event DataReceivedEvent OnDataReceived;
 
-		DatagramSocket socket;
-		DatagramSocket socket2;
+		DatagramSocket sender;
+		DatagramSocket listener;
 		PlayPage page;
-		string udptPort = "4000";
+		string port;
 
-		public UDPClient(PlayPage page)
+		public UDPClient(PlayPage page, string port)
 		{
 			this.page = page;
+			this.port = port;
 		}
 
 		public async void Start()
 		{
 			try
 			{
-				socket2 = new DatagramSocket();
-				socket2.MessageReceived += SocketOnMessageReceived;
-				await socket2.BindServiceNameAsync(udptPort);
-				//await socket2.BindEndpointAsync(new HostName("0.0.0.0"), udptPort);
-				page.DisplayMessages("Start UDP Client");
+				listener = new DatagramSocket();
+				listener.MessageReceived += SocketOnMessageReceived;
+				await listener.BindServiceNameAsync(port);
+				page.DisplayMessages("Start UDP server");
 			}
 			catch (Exception ex)
 			{
-				page.DisplayMessages("Error: Start UDP Client" + ex.ToString());
+				page.DisplayMessages("Error: Start UDP server" + ex.ToString());
 			}
 		}
 
 		private async void SocketOnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
-			page.DisplayMessages("Start received UDP Client");
 			var result = args.GetDataStream();
 			//var resultStream = result.AsStreamForRead();
 			var dataReader = new DataReader(result);
@@ -66,26 +65,26 @@ namespace testUniveralApp
 				dataReader.ReadBytes(bData);
 
 				dataReader.Dispose();
-
+				page.DisplayMessages("Start received UDP Client");
 				if (OnDataReceived != null) OnDataReceived(destination, msgType, bData);
 			}
-			catch
+			catch(Exception ex)
 			{
-
+				page.DisplayMessages("Error: Start received UDP Client" + ex.ToString());
 			}
 		}
 
 		public void Stop()
 		{
-			if (socket != null) socket.Dispose();
-			if (socket2 != null) socket2.Dispose();
+			if (sender != null) sender.Dispose();
+			if (listener != null) listener.Dispose();
 		}
 
 		public async Task SendMessage(byte msgType, byte[] message, byte[] host)
 		{
-			socket = new DatagramSocket();
+			sender = new DatagramSocket();
 			string _host = host[0].ToString() + "." + host[1].ToString() + "." + host[2].ToString() + "." + host[3].ToString();
-			using (var stream = await socket.GetOutputStreamAsync(new HostName(_host), udptPort))
+			using (var stream = await sender.GetOutputStreamAsync(new HostName(_host), port))
 			{
 				using (var writer = new DataWriter(stream))
 				{
@@ -95,7 +94,7 @@ namespace testUniveralApp
 					await writer.StoreAsync();
 				}
 			}
-			socket.Dispose();
+			sender.Dispose();
 		}
 	}
 }

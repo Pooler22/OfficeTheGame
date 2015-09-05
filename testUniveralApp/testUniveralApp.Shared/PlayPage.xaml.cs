@@ -30,20 +30,20 @@ namespace testUniveralApp
     public partial class PlayPage : Page
     {
 		int speedPlayer;
+		string portUDP;
 		string name { get; set; }
-		string type{ get; set; }
-		int portUDP;
+		string type { get; set; }
+
 		Server server;
 		Client client, clientTest;
-
-		UDPClient _client;
-		UDPClientFinder _finder;
+		UDPClient serverUDP;
+		UDPClientFinder finderServerUDP;
 	
 		public PlayPage()
         {
             this.InitializeComponent();
-			speedPlayer = 10;
-			portUDP = 4000;
+			this.speedPlayer = 10;
+			this.portUDP = "4000";
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -56,46 +56,38 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				_client = new UDPClient(this);
-				_client.OnDataReceived += _client_OnDataReceived;
-				_client.Start();
+				serverUDP = new UDPClient(this, portUDP);
+				serverUDP.OnDataReceived += OnDataReceived;
+				serverUDP.Start();
 				
 				//server = new Server(name);
 				//server.initUDPListener(this, portUDP);
 				//client = new Client(name);
-
 				//server.addForPlayer1Listener(this, 80);
-				//client.initClientListener(this, 81);
-				
+				//client.initClientListener(this, 81);	
 				//server.addForPlayer1Sender(81);
 				//client.initClientSender(80);
-
 				//server.sendToPlayer1("Wait for another player.");
 				
 			}
 			else if (type.Equals("c"))
 
 			{
-				_finder = new UDPClientFinder();
-				_finder.OnClientFound += _finder_OnClientFound;
-				
-				//_finder.StartFinder();
-				//_finder.BroadcastIP();
+				finderServerUDP = new UDPClientFinder(this, portUDP);
+				finderServerUDP.OnClientFound += OnClientFound;
+				finderServerUDP.Start();
+				finderServerUDP.BroadcastIP();
 				
 				//client = new Client(name);
 				//client.initUDPFinder(this, portUDP);
-
 				//server.addForPlayer2Listener(this, 82);
 				//client.initClientListener(this, 83);
-
 				//server.addForPlayer2Sender(83);
 				//client.initClientSender(82);
 			}
 		}
 
-
-
-		void _finder_OnClientFound(byte[] clientIP)
+		void OnClientFound(byte[] clientIP)
 		{
 			DisplayMessages(clientIP.ToString());
 			SendUserData(clientIP);
@@ -108,12 +100,12 @@ namespace testUniveralApp
 				byte[] bytes = new byte[str.Length * sizeof(char)];
 				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 				DisplayMessages(name.ToString());
-				await _client.SendMessage(0, bytes, dest);
-				await _client.SendMessage(1, bytes, dest);
+				await serverUDP.SendMessage(0, bytes, dest);
+				await serverUDP.SendMessage(1, bytes, dest);
 			}
 		}
 
-		private void _client_OnDataReceived(byte[] dest, byte msgType, byte[] data)
+		private void OnDataReceived(byte[] dest, byte msgType, byte[] data)
 		{
 			DisplayMessages(data.ToString());
 			SendUserData(dest);
@@ -121,16 +113,14 @@ namespace testUniveralApp
 
 		private bool _discovery = false;
 
-
-
-
 		public async void DisplayMessages(string message)
 		{
-			await Dispatcher.RunIdleAsync((unused) =>
-			{
-				view.Items.Add(message);
-				view.ScrollIntoView(message);
-			});
+			await Dispatcher.RunIdleAsync(
+				(unused) =>
+				{
+					view.Items.Add(message);
+					view.ScrollIntoView(message);
+				});
 		}
 
 		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)

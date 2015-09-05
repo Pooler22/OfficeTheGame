@@ -19,9 +19,16 @@ namespace testUniveralApp
 		public event ClientFoundEvent OnClientFound;
 		public delegate void ClientFoundEvent(byte[] clientIP);
 
+		string port;
 		DatagramSocket socket;
 		DatagramSocket socket2;
-		string finderPort = "4000";
+		PlayPage playPage;
+
+		public UDPClientFinder(PlayPage playPage, string port)
+		{
+			this.port = port;
+			this.playPage = playPage;
+		}
 
 		public static string LocalIPAddress()
 		{
@@ -56,13 +63,17 @@ namespace testUniveralApp
 			}
 		}
 
-		public async void StartFinder()
+		public async void Start()
 		{
 			try
 			{
 				socket2 = new DatagramSocket();
 				socket2.MessageReceived += SocketOnMessageReceived;
-				await socket2.BindEndpointAsync(new HostName("0.0.0.0"), finderPort);
+				await socket2.BindServiceNameAsync(port);
+
+				//listener = new DatagramSocket();
+				//listener.MessageReceived += SocketOnMessageReceived;
+				//await listener.BindEndpointAsync(new HostName("0.0.0.0"), port);
 			}
 			catch { }
 		}
@@ -75,7 +86,7 @@ namespace testUniveralApp
 
 		public async void BroadcastIP()
 		{
-			await SendMessage(IPMessage(), "255.255.255.255", finderPort);
+			await SendMessage(IPMessage(), "255.255.255.255", port);
 		}
 
 		private byte[] IPMessage()
