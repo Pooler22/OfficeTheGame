@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Navigation;
 namespace testUniveralApp
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// An empty playPage that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class SelectPage : Page
     {

@@ -56,8 +56,20 @@ namespace testUniveralApp
 			if (type.Equals("s"))
 			{
 				serverUDP = new UDPClient(this, portUDP, name);
-				serverUDP.OnDataReceived += OnDataReceived;
 				serverUDP.Start();
+
+				string str = "test";
+				byte[] bytes = new byte[str.Length * sizeof(char)];
+				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+
+				/*
+				Task.Run(
+				async () =>
+				{
+					await serverUDP.SendMessage(bytes, "192.168.1.102", "3659");
+				})
+				.Wait();
+				*/
 				
 				//server = new Server(name);
 				//server.initUDPListener(this, portUDP);
@@ -73,7 +85,8 @@ namespace testUniveralApp
 
 			{
 				finderUDP = new UDPClientFinder(this, portUDP);
-				finderUDP.OnClientFound += OnClientFound;
+
+				
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
 				
@@ -84,30 +97,6 @@ namespace testUniveralApp
 				//server.addForPlayer2Sender(83);
 				//client.initClientSender(82);
 			}
-		}
-
-		void OnClientFound(byte[] clientIP)
-		{
-			DisplayMessages(clientIP.ToString());
-			SendUserData(clientIP);
-		}
-
-		private async void SendUserData(byte[] dest)
-		{
-			{
-				string str = "name";
-				byte[] bytes = new byte[str.Length * sizeof(char)];
-				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-				DisplayMessages(name.ToString());
-				await serverUDP.SendMessage(0, bytes, dest);
-				await serverUDP.SendMessage(1, bytes, dest);
-			}
-		}
-
-		private void OnDataReceived(byte[] dest, byte msgType, byte[] data)
-		{
-			DisplayMessages(data.ToString());
-			SendUserData(dest);
 		}
 
 		public async void DisplayMessages(string message)

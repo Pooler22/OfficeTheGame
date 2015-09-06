@@ -9,19 +9,15 @@ using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using System.IO;
 using System.Net;
-
-
+using System.Net.NetworkInformation;
 
 namespace testUniveralApp
 {
 	class UDPClientFinder
 	{
-		public event ClientFoundEvent OnClientFound;
-		public delegate void ClientFoundEvent(byte[] clientIP);
-
 		string port;
 		string portFinder;
-		DatagramSocket socket;
+		DatagramSocket sender;
 		DatagramSocket listener;
 		PlayPage playPage;
 
@@ -29,7 +25,7 @@ namespace testUniveralApp
 		{
 			this.port = port;
 			this.playPage = playPage;
-			portFinder = "3659";
+			this.portFinder = "3659";
 		}
 
 		public async void Start()
@@ -38,7 +34,8 @@ namespace testUniveralApp
 			{
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				await listener.BindServiceNameAsync(portFinder);
+				await listener.BindEndpointAsync(null, port.ToString());
+				//await listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portFinder);
 				playPage.DisplayMessages("UDP Finder start");
 			}
 			catch (Exception ex)
@@ -47,63 +44,60 @@ namespace testUniveralApp
 			}
 		}
 		
-		async void MessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
+		private async void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
 		{
-			playPage.DisplayMessages("finder received");
 			try
-            {
-			DataReader reader = args.GetDataReader();
-			reader.InputStreamOptions = InputStreamOptions.Partial;
-			uint bytesRead = reader.UnconsumedBufferLength;
-			string message = reader.ReadString(bytesRead);
-			playPage.DisplayMessages("Message received from [" +
-				args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
-			if("ready".Equals(message.Split(' ').ElementAt(0).ToString()))
 			{
-				playPage.AddServer(message);
+				DataReader reader = args.GetDataReader();
+				reader.InputStreamOptions = InputStreamOptions.Partial;
+				uint bytesRead = reader.UnconsumedBufferLength;
+				string message = reader.ReadString(bytesRead);
+
+				playPage.DisplayMessages("Message received from [" +
+					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
+
+				reader.Dispose();
+
+				string meaasge2 = "ready " + " port ip";
+				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
+				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
+
+				await SendMessage(bytes1, args.RemoteAddress.DisplayName.ToString(), message);
 			}
-			reader.Dispose();
-			/*
-			var result = args.GetDataStream();
-			var resultStream = result.AsStreamForRead(1024);
-			playPage.DisplayMessages("UDP finder received");
-			try
+			catch (Exception ex)
 			{
-				
-				byte[] buffer = new byte[5];
-				byte[] message = IPMessage();
-				await resultStream.ReadAsync(buffer, 0, 5);
-				for (int i = 0; i <= 5; i++) //compare arrays
+				playPage.DisplayMessages("ERROR: Message received from:");
+			}
+		}
+		
+		public void Stop()
+		{
+			if (sender != null) 
+				sender.Dispose();
+			if (listener != null) 
+				listener.Dispose();
+		}
+
+		public async Task SendMessage(byte[] message, string host, string port)
+		{
+			sender = new DatagramSocket();
+			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
+			{
+				using (var writer = new DataWriter(stream))
 				{
-					if (buffer[i] != message[i])
+					try
 					{
-						if (buffer[0] == 1 && OnClientFound != null)
-						{
-							await SendMessage(message,
-								args.RemoteAddress.ToString(), args.RemotePort);
-							OnClientFound(buffer.Skip(1).ToArray());
-							break;
-						}
+						writer.WriteBytes(message);
+						await writer.StoreAsync();
+						playPage.DisplayMessages("Send Message port: " + host + " " + port);
+					}
+					catch (Exception ex)
+					{
+						playPage.DisplayMessages("Error Send Message");
 					}
 				}
 			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages("Error: UDP finder received" + ex.ToString());
-			}*/
-			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages("Server didn't receive message." + ex.ToString());
-			}
-		}
-
-		public void Stop()
-		{
-			if (socket != null) 
-				socket.Dispose();
-			if (listener != null) 
-				listener.Dispose();
+			sender.Dispose();
 		}
 		
 		public static string LocalIPAddress()
@@ -114,15 +108,14 @@ namespace testUniveralApp
 			{
 				if (hn.IPInformation != null &&
 					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6 // Ethernet (Emulator)
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 243
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 244)) 
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator) 
 				{
 					string ipAddress = hn.DisplayName;
 					ipAddresses.Add(ipAddress);
 				}
+				
 			}
-
+			
 			if (ipAddresses.Count < 1)
 			{
 				return null;
@@ -147,22 +140,6 @@ namespace testUniveralApp
 			await SendMessage(bytes, "255.255.255.255", port);
 		}
 
-		async Task SendMessage(byte[] message, string host, string port)
-		{
-			socket = new DatagramSocket();
-
-			using (var stream = await socket.GetOutputStreamAsync(new HostName(host), port))
-			{
-				using (var writer = new DataWriter(stream))
-				{
-					writer.WriteBytes(message);
-					await writer.StoreAsync();
-					playPage.DisplayMessages("Finder send message");
-				}
-			}
-			socket.Dispose();
-		}
-
 		byte[] IPMessage()
 		{
 			//IP Address to byte()
@@ -171,5 +148,31 @@ namespace testUniveralApp
 			return Enumerable.Range(0, 5).Select(x =>
 						(x == 0) ? (byte)1 : Convert.ToByte(strIPTemp[x - 1])).ToArray();
 		}
+
+		public static string GetLocalIPv4()
+		{
+			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+			var icp = NetworkInformation.GetInternetConnectionProfile();
+
+			if (icp != null && icp.NetworkAdapter != null)
+			{
+				var hostname =
+					NetworkInformation.GetHostNames()
+						.SingleOrDefault(
+							hn =>
+							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
+							== icp.NetworkAdapter.NetworkAdapterId);
+
+				if (hostname != null)
+				{
+					// the ip address
+					return hostname.CanonicalName;
+				}
+			}
+
+			return null;
+		}
+
 	}
 }

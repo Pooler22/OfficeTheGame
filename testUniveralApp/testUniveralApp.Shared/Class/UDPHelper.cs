@@ -17,8 +17,8 @@ namespace testUniveralApp
 			this.page = page;
 			//serverUDP = new UDPClient(this);
 			_finder = new UDPClientFinder(page, port);
-			_finder.OnClientFound += _finder_OnClientFound;
-			_client.OnDataReceived += _client_OnDataReceived;
+			//_finder.OnClientFound += _finder_OnClientFound;
+			//_client.OnDataReceived += _client_OnDataReceived;
 		}
 
 		void _finder_OnClientFound(byte[] clientIP)
@@ -33,8 +33,8 @@ namespace testUniveralApp
 				byte[] bytes = new byte[str.Length * sizeof(char)];
 				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 
-				await _client.SendMessage(0, bytes, dest);
-				await _client.SendMessage(1, bytes, dest);
+			//	await _client.SendMessage(0, bytes, dest);
+				//await _client.SendMessage(1, bytes, dest);
 			}
 		}
 
