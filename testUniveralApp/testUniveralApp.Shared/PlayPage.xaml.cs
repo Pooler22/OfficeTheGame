@@ -120,6 +120,16 @@ namespace testUniveralApp
 				});
 		}
 
+		public async void AddServer(string message)
+		{
+			await Dispatcher.RunIdleAsync(
+				(unused) =>
+				{
+					viewServers.Items.Add(message);
+					viewServers.ScrollIntoView(message);
+				});
+		}
+
 		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)
 		{
 			playerButton.Margin = new Thickness(
@@ -131,7 +141,14 @@ namespace testUniveralApp
 
 		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			//disconnectServer();
+			if(finderUDP != null)
+			{
+				finderUDP.Stop();
+			}
+			if(serverUDP != null)
+			{
+				serverUDP.Stop();
+			}
 			this.Frame.GoBack();
 		}
 
@@ -190,6 +207,11 @@ namespace testUniveralApp
 			}
 
 			return null;
+		}
+
+		private void find_Click(object sender, RoutedEventArgs e)
+		{
+			finderUDP.BroadcastIP();
 		}
 	}
 

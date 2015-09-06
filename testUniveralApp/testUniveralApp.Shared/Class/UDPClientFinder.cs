@@ -49,12 +49,27 @@ namespace testUniveralApp
 		
 		async void MessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
 		{
+			playPage.DisplayMessages("finder received");
+			try
+            {
+			DataReader reader = args.GetDataReader();
+			reader.InputStreamOptions = InputStreamOptions.Partial;
+			uint bytesRead = reader.UnconsumedBufferLength;
+			string message = reader.ReadString(bytesRead);
+			playPage.DisplayMessages("Message received from [" +
+				args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
+			if("ready".Equals(message.Split(' ').ElementAt(0).ToString()))
+			{
+				playPage.AddServer(message);
+			}
+			reader.Dispose();
+			/*
 			var result = args.GetDataStream();
 			var resultStream = result.AsStreamForRead(1024);
-
+			playPage.DisplayMessages("UDP finder received");
 			try
 			{
-				playPage.DisplayMessages("UDP finder received");
+				
 				byte[] buffer = new byte[5];
 				byte[] message = IPMessage();
 				await resultStream.ReadAsync(buffer, 0, 5);
@@ -75,6 +90,11 @@ namespace testUniveralApp
 			catch (Exception ex)
 			{
 				playPage.DisplayMessages("Error: UDP finder received" + ex.ToString());
+			}*/
+			}
+			catch (Exception ex)
+			{
+				playPage.DisplayMessages("Server didn't receive message." + ex.ToString());
 			}
 		}
 
@@ -94,7 +114,9 @@ namespace testUniveralApp
 			{
 				if (hn.IPInformation != null &&
 					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator)
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6 // Ethernet (Emulator)
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 243
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 244)) 
 				{
 					string ipAddress = hn.DisplayName;
 					ipAddresses.Add(ipAddress);
@@ -119,7 +141,7 @@ namespace testUniveralApp
 
 		public async void BroadcastIP()
 		{
-			string str = listener.Information.LocalPort;
+			string str = listener.Information.LocalPort.ToString();
 			byte[] bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 			await SendMessage(bytes, "255.255.255.255", port);

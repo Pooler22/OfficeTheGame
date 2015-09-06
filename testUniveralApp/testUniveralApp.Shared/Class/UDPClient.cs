@@ -37,8 +37,8 @@ namespace testUniveralApp
 			try
 			{
 				listener = new DatagramSocket();
-				await listener.BindServiceNameAsync(port);
 				listener.MessageReceived += MessageReceived;
+				await listener.BindServiceNameAsync(port);
 				page.DisplayMessages("Start UDP server");
 			}
 			catch (Exception ex)
@@ -68,19 +68,29 @@ namespace testUniveralApp
 				page.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName + "]:" + args.RemotePort + ": " + message);
 				 */
-				 
-				 DataReader reader = args.GetDataReader();
-                reader.InputStreamOptions = InputStreamOptions.Partial;
-                uint bytesRead = reader.UnconsumedBufferLength;
-                string message = reader.ReadString(bytesRead);
-                page.DisplayMessages( "Message received from [" +
-                    args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
+				try
+				{
+					DataReader reader = args.GetDataReader();
+					reader.InputStreamOptions = InputStreamOptions.Partial;
+					uint bytesRead = reader.UnconsumedBufferLength;
+					string message = reader.ReadString(bytesRead);
 
-				reader.Dispose();
+					page.DisplayMessages("Message received from [" +
+						args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
+					reader.Dispose();
 
-				await SendMessage(bytes, args.RemoteAddress.ToString(), message);
-				
+					string meaasge2 = "ready " + name;
+					byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
+					System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
+
+					await SendMessage(bytes1, args.RemoteAddress.ToString(), message);
+					await SendMessage(bytes1, args.RemoteAddress.ToString(), args.RemotePort);
+				}
+				 catch(Exception ex)
+				{
+					 page.DisplayMessages("ERROR: Message received from:");
+				}
             }
             catch (Exception ex)
             {
@@ -104,7 +114,7 @@ namespace testUniveralApp
 			{
 				using (var writer = new DataWriter(stream))
 				{
-					writer.WriteByte(msgType);
+					//writer.WriteByte(msgType);
 					writer.WriteInt32(message.Length);
 					writer.WriteBytes(message);
 					await writer.StoreAsync();
@@ -124,7 +134,7 @@ namespace testUniveralApp
 					{
 						writer.WriteBytes(message);
 						await writer.StoreAsync();
-						page.DisplayMessages("Send Message");
+						page.DisplayMessages("Send Message port: " + port);
 					}
 					catch(Exception ex)
 					{
