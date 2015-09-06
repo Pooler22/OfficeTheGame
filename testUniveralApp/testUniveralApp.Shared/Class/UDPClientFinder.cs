@@ -29,7 +29,7 @@ namespace testUniveralApp
 		{
 			this.port = port;
 			this.playPage = playPage;
-			portFinder = "4001";
+			portFinder = "3659";
 		}
 
 		public async void Start()
@@ -54,6 +54,7 @@ namespace testUniveralApp
 
 			try
 			{
+				playPage.DisplayMessages("UDP finder received");
 				byte[] buffer = new byte[5];
 				byte[] message = IPMessage();
 				await resultStream.ReadAsync(buffer, 0, 5);
@@ -71,8 +72,9 @@ namespace testUniveralApp
 					}
 				}
 			}
-			catch
-			{ //TODO: Error handler
+			catch (Exception ex)
+			{
+				playPage.DisplayMessages("Error: UDP finder received" + ex.ToString());
 			}
 		}
 

@@ -34,10 +34,11 @@ namespace testUniveralApp
 		string name { get; set; }
 		string type { get; set; }
 
-		Server server;
-		Client client, clientTest;
+
 		UDPClient serverUDP;
 		UDPClientFinder finderUDP;
+		Server server;
+		Client client, clientTest;
 	
 		public PlayPage()
         {
@@ -51,8 +52,6 @@ namespace testUniveralApp
 			this.name = e.Parameter as string;
 			this.type = name.Substring(0, 1);
 			this.name = name.Substring(1);
-
-			loadingBar.IsEnabled = false;
 
 			if (type.Equals("s"))
 			{
@@ -110,8 +109,6 @@ namespace testUniveralApp
 			DisplayMessages(data.ToString());
 			SendUserData(dest);
 		}
-
-		private bool _discovery = false;
 
 		public async void DisplayMessages(string message)
 		{
@@ -193,21 +190,6 @@ namespace testUniveralApp
 			}
 
 			return null;
-		}
-
-		private void send_Click(object sender, RoutedEventArgs e)
-		{
-			//sendFromClient("connect " + name.ToString(), ip.Text.ToString(), portTB.Text);
-			clientTest = new Client(name);
-
-			server.addForPlayer2Listener(this, 82);
-			clientTest.initClientListener(this, 83);
-
-			server.addForPlayer2Sender(83);
-			clientTest.initClientSender(82);
-
-			server.sendToPlayer1("play");
-			server.sendToPlayer2("play");
 		}
 	}
 
