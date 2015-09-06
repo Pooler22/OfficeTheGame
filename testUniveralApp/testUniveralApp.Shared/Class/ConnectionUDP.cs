@@ -182,7 +182,7 @@ namespace testUniveralApp
 					writer.WriteBytes(data);
 					writer.StoreAsync();
 				}
-			
+			}	
 		}
 
 		private async void SocketOnMessageReceived1(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
