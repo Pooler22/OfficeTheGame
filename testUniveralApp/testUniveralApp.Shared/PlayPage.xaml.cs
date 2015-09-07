@@ -55,14 +55,14 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				serverUDP = new UDPClient(this, portUDP1, name);
-				serverUDP.Start();
+				//serverUDP = new UDPClient(this, portUDP1, name);
+				//serverUDP.Start();
 				
 				{
-					server = new Server(this, name);
-					client = new Client(this, name);
-					server.addForPlayer1Listener(80);
-					client.initClientListener(81);
+					server = new Server(name);
+					client = new Client(name);
+					server.addForPlayer1Listener(this, 80);
+					client.initClientListener(this, 81);
 					server.addForPlayer1Sender(81, "192.168.1.103");
 					client.initClientSender(80, "192.168.1.103");
 					server.sendToPlayer1("Wait for another player.");
@@ -71,12 +71,12 @@ namespace testUniveralApp
 			}
 			else if (type.Equals("c"))
 			{
-				finderUDP = new UDPClientFinder(this, portUDP1);
-				finderUDP.Start();
-				finderUDP.BroadcastIP();
+				//finderUDP = new UDPClientFinder(this, portUDP1);
+				//finderUDP.Start();
+				//finderUDP.BroadcastIP();
 				
-				//client = new Client(this,name);
-				//server.addForPlayer2Sender(82,"192.168.1.103") ;
+				client = new Client(name);
+				server.addForPlayer2Sender(82);
 			}
 		}
 
