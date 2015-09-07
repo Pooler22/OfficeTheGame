@@ -14,22 +14,20 @@ namespace testUniveralApp
 		ConnectionTCP toClient1;
 		ConnectionTCP toClient2;
 		GameData data;
-		string name;
 
-		public Server(string name)
+		public Server(PlayPage page, string name = "Server")
 		{
-			this.name = name;
+			toClient1 = new ConnectionTCP(page, name);
+			toClient2 = new ConnectionTCP(page, name);
 		}
 
-		public void addForPlayer1Listener(PlayPage page, int portListener)
+		public void addForPlayer1Listener(int portListener)
 		{
-			toClient1 = new ConnectionTCP(page, "Server");
 			toClient1.initListener(portListener);
 		}
 
 		public void addForPlayer2Listener(PlayPage page, int portListener)
 		{
-			toClient2 = new ConnectionTCP(page, "Server");
 			toClient2.initListener(portListener);
 		}
 
