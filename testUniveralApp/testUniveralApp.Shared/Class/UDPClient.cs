@@ -63,20 +63,11 @@ namespace testUniveralApp
 			}
 		}
 
-		public void Start()
-		{
-			Task.Run(
-				async () =>
-				{
-					await initClient();
-				});
-		}
-
-		public async Task initClient()
+		public async void Start()
 		{
 			try
 			{
-				//sender = new DatagramSocket();
+				sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
 				listener.BindEndpointAsync(new HostName(LocalIPAddress()), portListener);
@@ -102,13 +93,11 @@ namespace testUniveralApp
 				playPage.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-				List<string> list = message.Split(' ').ToList<string>();
-				playPage.DisplayMessages(list.ElementAt(0) + ":" + list.ElementAt(1));
 				string meaasge2 = "ready " + LocalIPAddress() + " ";
 				playPage.DisplayMessages("Message prepare " + meaasge2);
 				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
-				SendMessage(bytes1, list.ElementAt(0), list.ElementAt(1));
+				SendMessage(bytes1, "255.255.255.255", portSender);
 
 				reader.Dispose();
 			}
@@ -128,7 +117,6 @@ namespace testUniveralApp
 		
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
-			sender = new DatagramSocket();
 			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
 			{
 				using (var writer = new DataWriter(stream))
@@ -145,7 +133,6 @@ namespace testUniveralApp
 					}
 				}
 			}
-			sender.Dispose();
 		}
 	}
 }

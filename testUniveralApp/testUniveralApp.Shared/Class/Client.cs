@@ -6,16 +6,18 @@ namespace testUniveralApp
 {
     class Client
     {
+		string name;
 		ConnectionTCP toServerTCP;
 		GameData data;
 
-		public Client(PlayPage page, string name)
+		public Client(string name)
 		{
-			this.toServerTCP = new ConnectionTCP(page, name);
+			this.name = name;
 		}
 
-		public void initClientListener(int portListener)
+		public void initClientListener(PlayPage page, int portListener)
 		{
+			toServerTCP = new ConnectionTCP(page, "Client");
 			toServerTCP.initListener(portListener);
 		}
 
