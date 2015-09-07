@@ -8,13 +8,15 @@ using Windows.Networking;
 using Windows.Networking.Sockets;
 using System.IO;
 using Windows.Storage.Streams;
+using Windows.Networking.Connectivity;
 
 namespace testUniveralApp
 {
 	class UDPClient
 	{
 		byte[] bytes;
-		string port, name;
+		string portListener, name;
+		string portSender = "3659";
 		DatagramSocket sender;
 		DatagramSocket listener;
 		PlayPage playPage;
@@ -22,21 +24,55 @@ namespace testUniveralApp
 		public UDPClient(PlayPage page, string port, string name)
 		{
 			this.playPage = page;
-			this.port = port;
+			this.portListener = port;
 			this.name = name;
 
 			bytes = new byte[name.Length * sizeof(char)];
 			System.Buffer.BlockCopy(name.ToCharArray(), 0, bytes, 0, bytes.Length);
+		}
+		
+		public static string LocalIPAddress()
+		{
+			List<string> ipAddresses = new List<string>();
+			var hostnames = NetworkInformation.GetHostNames();
+			foreach (var hn in hostnames)
+			{
+				if (hn.IPInformation != null &&
+					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
+					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator) 
+				{
+					string ipAddress = hn.DisplayName;
+					ipAddresses.Add(ipAddress);
+				}
+
+			}
+
+			if (ipAddresses.Count < 1)
+			{
+				return null;
+			}
+			else if (ipAddresses.Count == 1)
+			{
+				return ipAddresses[0];
+			}
+			else
+			{
+				//if multiple suitable address were found use the last one
+				//(regularly the external interface of an emulated device)
+				return ipAddresses[ipAddresses.Count - 1];
+			}
 		}
 
 		public async void Start()
 		{
 			try
 			{
+				sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				await listener.BindEndpointAsync(null, port.ToString());
-				//await listener.BindServiceNameAsync(port);
+				listener.BindEndpointAsync(new HostName(LocalIPAddress()), portListener);
+				//await listener.BindEndpointAsync(new HostName("192.168.1.102"), portSender);
+				//await listener.BindServiceNameAsync(portSender);
 				playPage.DisplayMessages("Start UDP server");
 			}
 			catch (Exception ex)
@@ -45,7 +81,7 @@ namespace testUniveralApp
 			}
 		}
 
-		private async void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
+		private void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
 		{
 			try
 			{
@@ -57,18 +93,18 @@ namespace testUniveralApp
 				playPage.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-				reader.Dispose();
-
-				string meaasge2 = "ready " + " port ip";
+				string meaasge2 = "ready " + LocalIPAddress() + " ";
+				playPage.DisplayMessages("Message prepare " + meaasge2);
 				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
+				SendMessage(bytes1, "255.255.255.255", portSender);
 
-				await SendMessage(bytes1, args.RemoteAddress.DisplayName.ToString(), message);
+				reader.Dispose();
 			}
 			catch (Exception ex)
 			{
 				playPage.DisplayMessages("ERROR: Message received from:");
-			}
+			}			
 		}
 
 		public void Stop()
@@ -81,7 +117,6 @@ namespace testUniveralApp
 		
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
-			sender = new DatagramSocket();
 			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
 			{
 				using (var writer = new DataWriter(stream))
@@ -90,7 +125,7 @@ namespace testUniveralApp
 					{
 						writer.WriteBytes(message);
 						await writer.StoreAsync();
-						playPage.DisplayMessages("Send Message port: " + host + " " + port);
+						playPage.DisplayMessages("Send Message host: " + host + " portSender: " + port);
 					}
 					catch(Exception ex)
 					{
@@ -98,7 +133,6 @@ namespace testUniveralApp
 					}
 				}
 			}
-			sender.Dispose();
 		}
 	}
 }

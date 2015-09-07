@@ -39,7 +39,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <ListView x:Name="view" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0" />
-            <ListView x:Name="viewServers" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0" Grid.Row="1" />
+            <ListView x:Name="viewServers" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0" Grid.Row="1" ItemClick="viewServers_ItemClick" />
             <Button x:Name="find" Content="Button" Margin="0" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="find_Click"/>
 
             <!--

@@ -197,8 +197,6 @@ namespace testUniveralApp
 			}
 		}
 		
-
-
 		private void disconnectServer()
 		{
 			if (listener != null)

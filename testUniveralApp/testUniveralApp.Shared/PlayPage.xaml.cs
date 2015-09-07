@@ -55,48 +55,35 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
+				/*{
+					server = new Server(name);
+					client = new Client(name);
+					server.addForPlayer1Listener(this, 80);
+					client.initClientListener(this, 81);
+					server.addForPlayer1Sender(81);
+					client.initClientSender(80);
+					server.sendToPlayer1("Wait for another player.");
+				}*/
 				serverUDP = new UDPClient(this, portUDP, name);
-				serverUDP.Start();
-
-				string str = "test";
-				byte[] bytes = new byte[str.Length * sizeof(char)];
-				System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-
-				/*
-				Task.Run(
-				async () =>
-				{
-					await serverUDP.SendMessage(bytes, "192.168.1.102", "3659");
-				})
-				.Wait();
-				*/
-				
-				//server = new Server(name);
-				//server.initUDPListener(this, portUDP);
-				//client = new Client(name);
-				//server.addForPlayer1Listener(this, 80);
-				//client.initClientListener(this, 81);	
-				//server.addForPlayer1Sender(81);
-				//client.initClientSender(80);
-				//server.sendToPlayer1("Wait for another player.");
-				
+				serverUDP.Start();	
 			}
 			else if (type.Equals("c"))
 
 			{
 				finderUDP = new UDPClientFinder(this, portUDP);
-
-				
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
-				
-				//client = new Client(name);
-				//client.initUDPFinder(this, portUDP);
-				//server.addForPlayer2Listener(this, 82);
-				//client.initClientListener(this, 83);
-				//server.addForPlayer2Sender(83);
-				//client.initClientSender(82);
-			}
+				/*
+				client = new Client(name);
+				client.initClientListener(this, 83);
+				client.initClientSender(82);
+		*/	}
+		}
+
+		public void addTCPsecondPlayer()
+		{
+			server.addForPlayer2Listener(this, 82);
+			server.addForPlayer2Sender(83);
 		}
 
 		public async void DisplayMessages(string message)
@@ -201,6 +188,11 @@ namespace testUniveralApp
 		private void find_Click(object sender, RoutedEventArgs e)
 		{
 			finderUDP.BroadcastIP();
+		}
+
+		private void viewServers_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			DisplayMessages(e.ClickedItem.ToString());
 		}
 	}
 
