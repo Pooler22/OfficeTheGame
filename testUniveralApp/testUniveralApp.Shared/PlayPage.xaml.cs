@@ -36,7 +36,7 @@ namespace testUniveralApp
 		UDPClient serverUDP;
 		UDPClientFinder finderUDP;
 		Server server;
-		Client client;
+		Client client, clienttest;
 	
 		public PlayPage()
         {
@@ -66,8 +66,7 @@ namespace testUniveralApp
 					server.addForPlayer1Sender(81, "192.168.1.103");
 					client.initClientSender(80, "192.168.1.103");
 					server.sendToPlayer1("Wait for another player.");
-					server.addForPlayer2Listener(this, 82);
-					//server.addForPlayer2Sender(83);
+					
 				}
 			}
 			else if (type.Equals("c"))
@@ -91,6 +90,11 @@ namespace testUniveralApp
 		//view
 		public async void DisplayMessages(string message)
 		{
+			if(message.Contains("start"))
+			{
+				server.addForPlayer2Sender(83, "192.168.1.103");
+				DisplayMessages("wow");
+			}
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
@@ -118,6 +122,12 @@ namespace testUniveralApp
 		//click event
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
+			/*
+			clienttest.sendToServer("1WORKS");
+			client.sendToServer("2WORKS");
+			server.sendToPlayer1("3WORKS");
+			server.sendToPlayer2("4WORKS");
+			*/
 			if(finderUDP != null)
 			{
 				finderUDP.Stop();
@@ -131,7 +141,11 @@ namespace testUniveralApp
 
 		void find_Click(object sender, RoutedEventArgs e)
 		{
-			finderUDP.BroadcastIP();
+			server.addForPlayer2Listener(this, 82);
+			clienttest = new Client("ww");
+			clienttest.initClientListener(this, 83);
+			clienttest.initClientSender(82, "192.168.1.103");
+			clienttest.sendToServer("start");
 		}
 
 		//movement

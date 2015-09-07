@@ -25,5 +25,10 @@ namespace testUniveralApp
 		{
 			toServerTCP.initSender(portSender, remoteAdress);
 		}
+
+		public void sendToServer(string message)
+		{
+			toServerTCP.SendRequest(message);
+		}
     }
 }
