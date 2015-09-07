@@ -28,16 +28,27 @@ namespace testUniveralApp
 			this.portListener = "3659";
 		}
 
-		public async void Start()
+		public void Start()
+		{
+			Task.Run(
+				async () =>
+				{
+					await initFinder();
+				})
+				.Wait();
+		}
+
+		
+
+		public async Task initFinder()
 		{
 			try
 			{
 				sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				listener.BindEndpointAsync(new HostName(LocalIPAddress()), portListener);
-				//await listener.BindEndpointAsync(new HostName("192.168.1.103"), portSender);
-				playPage.DisplayMessages("UDP Finder start");
+				listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
+				playPage.DisplayMessages("UDP Finder start" + LocalIPAddress() + " " + portListener);
 			}
 			catch (Exception ex)
 			{
@@ -136,7 +147,7 @@ namespace testUniveralApp
 
 		public async void BroadcastIP()
 		{
-			string str = "discovery";
+			string str = GetLocalIPv4() + " " + listener.Information.LocalPort;//"discovery";
 			byte[] bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 			//playPage.DisplayMessages("Send Message);

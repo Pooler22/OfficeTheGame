@@ -13,10 +13,10 @@ namespace testUniveralApp
 {
     class ConnectionTCP
     {
+		string name;
 		StreamSocketListener listener = null;
 		StreamSocket sender = null;
 		PlayPage playPage;
-		string name;
 
 		public ConnectionTCP(PlayPage playPage, string name)
 		{
@@ -45,12 +45,12 @@ namespace testUniveralApp
 					listener = new StreamSocketListener();
 					listener.ConnectionReceived += OnConnectionReceived;
 					await listener.BindServiceNameAsync(port.ToString());
-					DisplayMessages("Listening TCP.");
+					DisplayMessages(name + " Listening TCP");
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Listening TCP error: " + ex.ToString());
+				DisplayMessages(name + " Listening TCP error: " + ex.ToString());
 			}
 		}
 
@@ -58,7 +58,7 @@ namespace testUniveralApp
 		{
 			try
 			{
-				DisplayMessages(args.Socket.Information.RemoteAddress.DisplayName + " connected.");
+				DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
 				while (true)
 				{
 					string request = await Read(args.Socket.InputStream);
@@ -83,7 +83,7 @@ namespace testUniveralApp
 			{
 				listener.Dispose();
 				listener = null;
-				DisplayMessages("Not listening anymore.");
+				DisplayMessages(name + "Stop listening");
 			}
 		}
 
@@ -98,10 +98,9 @@ namespace testUniveralApp
 				uint bytesRead = await reader.LoadAsync(16);
 				if (bytesRead == 0)
 				{
-					DisplayMessages("The connection was closed by remote host.");
+					DisplayMessages(name + " The connection was closed by remote host.");
 					break;
 				}
-				// TODO: Why DataReader doesn't have ReadChar()?
 				message += reader.ReadString(bytesRead);
 			}
 			reader.DetachStream();
@@ -114,7 +113,6 @@ namespace testUniveralApp
 			uint messageLength = writer.MeasureString(message);
 			writer.WriteString(message);
 			uint bytesWritten = await writer.StoreAsync();
-			//Debug.Assert(bytesWritten == messageLength);
 			writer.DetachStream();
 		}
 

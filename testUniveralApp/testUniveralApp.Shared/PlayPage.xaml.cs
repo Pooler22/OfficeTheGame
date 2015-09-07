@@ -55,9 +55,9 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				serverUDP = new UDPClient(this, portUDP1, name);
-				serverUDP.Start();
-
+				//serverUDP = new UDPClient(this, portUDP1, name);
+				//serverUDP.Start();
+				
 				{
 					server = new Server(name);
 					client = new Client(name);
@@ -71,20 +71,19 @@ namespace testUniveralApp
 			}
 			else if (type.Equals("c"))
 			{
-				finderUDP = new UDPClientFinder(this, portUDP1);
-				finderUDP.Start();
-				finderUDP.BroadcastIP();
+				//finderUDP = new UDPClientFinder(this, portUDP1);
+				//finderUDP.Start();
+				//finderUDP.BroadcastIP();
 				
 				client = new Client(name);
-				
-				//server.addForPlayer2Sender(82);
+				server.addForPlayer2Sender(82);
 			}
 		}
 
 		public void addTCPsecondPlayer()
 		{
-			client.initClientListener(this, 83);
-			client.initClientSender(82, "192.168.1.102");
+			//client.initClientListener(this, 83);
+			//client.initClientSender(82, "192.168.1.102");
 		}
 
 		//view
@@ -92,7 +91,7 @@ namespace testUniveralApp
 		{
 			if(message.Contains("start"))
 			{
-				server.addForPlayer2Sender(83, "192.168.1.103");
+				//server.addForPlayer2Sender(83, "192.168.1.103");
 				DisplayMessages("wow");
 			}
 			await Dispatcher.RunIdleAsync(
@@ -122,12 +121,7 @@ namespace testUniveralApp
 		//click event
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			/*
-			clienttest.sendToServer("1WORKS");
-			client.sendToServer("2WORKS");
-			server.sendToPlayer1("3WORKS");
-			server.sendToPlayer2("4WORKS");
-			*/
+			
 			if(finderUDP != null)
 			{
 				finderUDP.Stop();
@@ -142,8 +136,8 @@ namespace testUniveralApp
 		void find_Click(object sender, RoutedEventArgs e)
 		{
 			server.addForPlayer2Listener(this, 82);
-			clienttest = new Client("ww");
-			clienttest.initClientListener(this, 83);
+			//clienttest = new Client("ww");
+			//clienttest.initClientListener(this, 83);
 			clienttest.initClientSender(82, "192.168.1.103");
 			clienttest.sendToServer("start");
 		}
