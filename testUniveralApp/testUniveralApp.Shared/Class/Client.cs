@@ -21,9 +21,9 @@ namespace testUniveralApp
 			toServerTCP.initListener(portListener);
 		}
 
-		public void initClientSender(int portSender)
+		public void initClientSender(int portSender, string remoteAdress)
 		{
-			toServerTCP.initSender(portSender);
+			toServerTCP.initSender(portSender, remoteAdress);
 		}
     }
 }

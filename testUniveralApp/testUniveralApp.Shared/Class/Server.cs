@@ -33,14 +33,14 @@ namespace testUniveralApp
 			toClient2.initListener(portListener);
 		}
 
-		public void addForPlayer1Sender(int portSender)
+		public void addForPlayer1Sender(int portSender, string remoteAdress)
 		{
-			toClient1.initSender(portSender);
+			toClient1.initSender(portSender, remoteAdress);
 		}
 
-		public void addForPlayer2Sender(int portSender)
+		public void addForPlayer2Sender(int portSender, string remoteAdress)
 		{
-			toClient2.initSender(portSender);
+			toClient2.initSender(portSender, remoteAdress);
 		}
 		
 		public void sendToPlayer1(string message)

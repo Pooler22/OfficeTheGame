@@ -63,9 +63,11 @@ namespace testUniveralApp
 					client = new Client(name);
 					server.addForPlayer1Listener(this, 80);
 					client.initClientListener(this, 81);
-					server.addForPlayer1Sender(81);
-					client.initClientSender(80);
+					server.addForPlayer1Sender(81, "192.168.1.103");
+					client.initClientSender(80, "192.168.1.103");
 					server.sendToPlayer1("Wait for another player.");
+					server.addForPlayer2Listener(this, 82);
+					//server.addForPlayer2Sender(83);
 				}
 			}
 			else if (type.Equals("c"))
@@ -74,18 +76,19 @@ namespace testUniveralApp
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
 				
-				//client = new Client(name);
-				//client.initClientListener(this, 83);
-				//client.initClientSender(82);
+				client = new Client(name);
+				
+				//server.addForPlayer2Sender(82);
 			}
 		}
 
 		public void addTCPsecondPlayer()
 		{
-			server.addForPlayer2Listener(this, 82);
-			server.addForPlayer2Sender(83);
+			client.initClientListener(this, 83);
+			client.initClientSender(82, "192.168.1.102");
 		}
 
+		//view
 		public async void DisplayMessages(string message)
 		{
 			await Dispatcher.RunIdleAsync(
@@ -103,25 +106,17 @@ namespace testUniveralApp
 				{
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
-					viewServers.SelectionChanged += ListView_SelectionChanged;
+					viewServers.SelectionChanged += ServerListView_SelectionChanged;
 				});
 		}
 
-		private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			addTCPsecondPlayer();
 		}
 
-		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)
-		{
-			playerButton.Margin = new Thickness(
-				e.GetCurrentPoint(this).Position.X - (playerButton.Width / 2.0),
-				playerButton.Margin.Top,
-				playerButton.Margin.Right,
-				playerButton.Margin.Bottom);
-		}
-
-		private void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
+		//click event
+		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
 			if(finderUDP != null)
 			{
@@ -134,7 +129,22 @@ namespace testUniveralApp
 			this.Frame.GoBack();
 		}
 
-		private void playerButtonMoveKeys(object sender, KeyRoutedEventArgs e)
+		void find_Click(object sender, RoutedEventArgs e)
+		{
+			finderUDP.BroadcastIP();
+		}
+
+		//movement
+		void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)
+		{
+			playerButton.Margin = new Thickness(
+				e.GetCurrentPoint(this).Position.X - (playerButton.Width / 2.0),
+				playerButton.Margin.Top,
+				playerButton.Margin.Right,
+				playerButton.Margin.Bottom);
+		}
+
+		void playerButtonMoveKeys(object sender, KeyRoutedEventArgs e)
 		{
 			if (e.Key == Windows.System.VirtualKey.Left)
 			{
@@ -152,7 +162,7 @@ namespace testUniveralApp
 			}
 		}
 
-		private void setStartPlayersPositions(object sender, RoutedEventArgs e)
+		void setStartPlayersPositions(object sender, RoutedEventArgs e)
 		{
 			playerButton.Margin = new Thickness(
 				0,
@@ -164,11 +174,6 @@ namespace testUniveralApp
 				0,
 				enemyButton.Margin.Right,
 				enemyButton.Margin.Bottom);
-		}
-
-		private void find_Click(object sender, RoutedEventArgs e)
-		{
-			finderUDP.BroadcastIP();
 		}
 
 	}

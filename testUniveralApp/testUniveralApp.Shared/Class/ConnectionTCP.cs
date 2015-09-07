@@ -45,12 +45,12 @@ namespace testUniveralApp
 					listener = new StreamSocketListener();
 					listener.ConnectionReceived += OnConnectionReceived;
 					await listener.BindServiceNameAsync(port.ToString());
-					DisplayMessages("Listening.");
+					DisplayMessages("Listening TCP.");
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Listening error: " + ex.ToString());
+				DisplayMessages("Listening TCP error: " + ex.ToString());
 			}
 		}
 
@@ -120,17 +120,17 @@ namespace testUniveralApp
 
 		//sender
 
-		public void initSender(int portSender)
+		public void initSender(int portSender, string remoteAdress)
 		{
 			Task.Run(
 				async () =>
 				{
-					await Sender(portSender);
+					await Sender(portSender, remoteAdress);
 				})
 				.Wait();
 		}
 
-		private async Task Sender(int portSender)
+		private async Task Sender(int portSender, string remoteAdress)
 		{
 			try
 			{
