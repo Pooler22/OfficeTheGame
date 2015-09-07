@@ -50,6 +50,14 @@ namespace testUniveralApp
 		{
 			toClient2.SendRequest(message);
 		}
-		
+
+
+		internal void Dispose()
+		{
+			if (toClient1 != null)
+				toClient1.Dispose();
+			if (toClient2 != null)
+				toClient2.Dispose();
+		}
 	}
 }

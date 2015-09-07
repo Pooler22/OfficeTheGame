@@ -25,7 +25,7 @@ namespace testUniveralApp
 		{
 			this.portSender = port;
 			this.playPage = playPage;
-			this.portListener = "3659";
+			this.portListener = "4441";
 		}
 
 		public void Start()
@@ -48,6 +48,9 @@ namespace testUniveralApp
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
 				listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
+				
+				//listener.BindServiceNameAsync(portListener);
+				//listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
 				playPage.DisplayMessages("UDP Finder start" + LocalIPAddress() + " " + portListener);
 			}
 			catch (Exception ex)
@@ -72,6 +75,7 @@ namespace testUniveralApp
 				reader.Dispose();
 				playPage.AddServer(message);
 
+
 				//string meaasge2 = "ready " + " portSender ip";
 				//byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				//System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
@@ -84,7 +88,7 @@ namespace testUniveralApp
 			}
 		}
 		
-		public void Stop()
+		public void Dispose()
 		{
 			if (sender != null) 
 				sender.Dispose();
@@ -147,11 +151,10 @@ namespace testUniveralApp
 
 		public async void BroadcastIP()
 		{
-			string str = GetLocalIPv4() + " " + listener.Information.LocalPort;//"discovery";
+			string str = "discovery";
 			byte[] bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-			//playPage.DisplayMessages("Send Message);
-			await SendMessage(bytes, "255.255.255.255", portSender);
+			SendMessage(bytes,  "255.255.255.255", portSender);
 		}
 
 		byte[] IPMessage()

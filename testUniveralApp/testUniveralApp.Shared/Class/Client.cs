@@ -28,5 +28,13 @@ namespace testUniveralApp
 		{
 			toServerTCP.SendRequest(message);
 		}
-    }
+
+		internal void Dispose()
+		{
+			if (toServerTCP != null)
+			{
+				toServerTCP.Dispose();
+			}
+		}
+	}
 }

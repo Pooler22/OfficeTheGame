@@ -16,7 +16,7 @@ namespace testUniveralApp
 	{
 		byte[] bytes;
 		string portListener, name;
-		string portSender = "3659";
+		string portSender = "4441";
 		DatagramSocket sender;
 		DatagramSocket listener;
 		PlayPage playPage;
@@ -33,34 +33,27 @@ namespace testUniveralApp
 		
 		public static string LocalIPAddress()
 		{
-			List<string> ipAddresses = new List<string>();
-			var hostnames = NetworkInformation.GetHostNames();
-			foreach (var hn in hostnames)
+			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+			var icp = NetworkInformation.GetInternetConnectionProfile();
+
+			if (icp != null && icp.NetworkAdapter != null)
 			{
-				if (hn.IPInformation != null &&
-					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator) 
+				var hostname =
+					NetworkInformation.GetHostNames()
+						.SingleOrDefault(
+							hn =>
+							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
+							== icp.NetworkAdapter.NetworkAdapterId);
+
+				if (hostname != null)
 				{
-					string ipAddress = hn.DisplayName;
-					ipAddresses.Add(ipAddress);
+					// the ip address
+					return hostname.CanonicalName;
 				}
-
 			}
 
-			if (ipAddresses.Count < 1)
-			{
-				return null;
-			}
-			else if (ipAddresses.Count == 1)
-			{
-				return ipAddresses[0];
-			}
-			else
-			{
-				//if multiple suitable address were found use the last one
-				//(regularly the external interface of an emulated device)
-				return ipAddresses[ipAddresses.Count - 1];
-			}
+			return null;
 		}
 
 		public void Start()
@@ -97,19 +90,16 @@ namespace testUniveralApp
 				DataReader reader = args.GetDataReader();
 				reader.InputStreamOptions = InputStreamOptions.Partial;
 				uint bytesRead = reader.UnconsumedBufferLength;
-				string message = reader.ReadString(bytesRead);
+				String message = reader.ReadString(bytesRead);
 
 				playPage.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-				List<string> list = message.Split(' ').ToList<string>();
-				playPage.DisplayMessages(list.ElementAt(0) + ":" + list.ElementAt(1));
-				string meaasge2 = "ready " + LocalIPAddress() + " ";
-				playPage.DisplayMessages("Message prepare " + meaasge2);
+				string meaasge2 = "ready " + LocalIPAddress();
 				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
-				SendMessage(bytes1, list.ElementAt(0), list.ElementAt(1));
-
+				//SendMessage(bytes1, "255.255.255.255", portSender);
+				SendMessage(bytes1, "255.255.255.255", portSender);
 				reader.Dispose();
 			}
 			catch (Exception ex)
@@ -118,7 +108,7 @@ namespace testUniveralApp
 			}			
 		}
 
-		public void Stop()
+		public void Dispose()
 		{
 			if (sender != null) 
 				sender.Dispose();
@@ -129,23 +119,22 @@ namespace testUniveralApp
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
 			sender = new DatagramSocket();
-			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
+			try
 			{
-				using (var writer = new DataWriter(stream))
+				using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
 				{
-					try
-					{
-						writer.WriteBytes(message);
-						await writer.StoreAsync();
-						playPage.DisplayMessages("Send Message host: " + host + " portSender: " + port);
-					}
-					catch(Exception ex)
-					{
-						playPage.DisplayMessages("Error Send Message");
-					}
+					var writer = new DataWriter(stream);
+					writer.WriteBytes(message);
+					await writer.StoreAsync();
+					playPage.DisplayMessages("Send Message host: " + host + " portSender: " + port);
+					
 				}
+				sender.Dispose();
 			}
-			sender.Dispose();
+			catch
+			{
+				playPage.DisplayMessages("Error: Send Message");
+			}
 		}
 	}
 }

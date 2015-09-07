@@ -77,13 +77,13 @@ namespace testUniveralApp
 			}
 		}
 
-		private void StopListener()
+		private void DisposeListener()
 		{
 			if (listener != null)
 			{
 				listener.Dispose();
 				listener = null;
-				DisplayMessages(name + "Stop listening");
+				DisplayMessages(name + "Dispose listening");
 			}
 		}
 
@@ -196,5 +196,13 @@ namespace testUniveralApp
 			playPage.DisplayMessages(name + ": " + message);
 		}
 
-    }
+
+		internal void Dispose()
+		{
+			if (listener != null)
+				listener.Dispose();
+			if (sender != null)
+				sender.Dispose();
+		}
+	}
 }

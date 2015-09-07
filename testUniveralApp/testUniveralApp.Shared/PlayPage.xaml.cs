@@ -27,7 +27,7 @@ using Windows.Networking.Connectivity;
 
 namespace testUniveralApp
 {
-    public partial class PlayPage : Page
+    public partial class PlayPage : Page, IDisposable
     {
 		int speedPlayer;
 		string portUDP1, portUDP2;
@@ -43,7 +43,7 @@ namespace testUniveralApp
             this.InitializeComponent();
 			
 			this.speedPlayer = 10;
-			this.portUDP1 = "4000";
+			this.portUDP1 = "4444";
 			this.portUDP2 = "4001";
 		}
 
@@ -55,28 +55,28 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				//serverUDP = new UDPClient(this, portUDP1, name);
-				//serverUDP.Start();
-				
 				{
-					server = new Server(name);
-					client = new Client(name);
-					server.addForPlayer1Listener(this, 80);
-					client.initClientListener(this, 81);
+					serverUDP = new UDPClient(this, portUDP1, name);
+					serverUDP.Start();
+				}
+				{
+					server = new Server(this,name);
+					client = new Client(this, name);
+					server.addForPlayer1Listener(80);
+					client.initClientListener(81);
 					server.addForPlayer1Sender(81, "192.168.1.103");
 					client.initClientSender(80, "192.168.1.103");
-					server.sendToPlayer1("Wait for another player.");
-					
+					server.sendToPlayer1("Wait for another player.");	
 				}
 			}
 			else if (type.Equals("c"))
 			{
-				//finderUDP = new UDPClientFinder(this, portUDP1);
-				//finderUDP.Start();
-				//finderUDP.BroadcastIP();
+				finderUDP = new UDPClientFinder(this, portUDP1);
+				finderUDP.Start();
+				finderUDP.BroadcastIP();
 				
-				client = new Client(name);
-				server.addForPlayer2Sender(82);
+				//client = new Client(this,name);
+				//server.addForPlayer2Sender(82, "192.168.1.102");
 			}
 		}
 
@@ -115,21 +115,39 @@ namespace testUniveralApp
 
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			addTCPsecondPlayer();
+			DisplayMessages(e.AddedItems[0].ToString() + " " + e.ToString());
+			//addTCPsecondPlayer();
 		}
 
 		//click event
+
+		public void Dispose()
+		{
+			if (finderUDP != null)
+			{
+				finderUDP.Dispose();
+			}
+			if (serverUDP != null)
+			{
+				serverUDP.Dispose();
+			}
+			if (client != null)
+			{
+				client.Dispose();
+			}
+			if (clienttest != null)
+			{
+				clienttest.Dispose();
+			}
+			if (server != null)
+			{
+				server.Dispose();
+			}
+		}
+
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
-			
-			if(finderUDP != null)
-			{
-				finderUDP.Stop();
-			}
-			if(serverUDP != null)
-			{
-				serverUDP.Stop();
-			}
+			this.Dispose();
 			this.Frame.GoBack();
 		}
 
