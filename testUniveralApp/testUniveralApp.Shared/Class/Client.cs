@@ -8,18 +8,11 @@ namespace testUniveralApp
     {
 		string name;
 		ConnectionTCP toServerTCP;
-		ConnectionUDP brodcastDiscovery;
 		GameData data;
 
 		public Client(string name)
 		{
 			this.name = name;
-		}
-
-		public void initUDPFinder(PlayPage page, int portListener)
-		{
-			brodcastDiscovery = new ConnectionUDP(page, name);
-			brodcastDiscovery.initUDPFinder(portListener);
 		}
 
 		public void initClientListener(PlayPage page, int portListener)

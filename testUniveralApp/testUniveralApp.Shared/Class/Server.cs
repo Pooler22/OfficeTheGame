@@ -13,19 +13,12 @@ namespace testUniveralApp
     {
 		ConnectionTCP toClient1;
 		ConnectionTCP toClient2;
-		ConnectionUDP brodcastListener;
 		GameData data;
 		string name;
 
 		public Server(string name)
 		{
 			this.name = name;
-		}
-
-		public void initUDPListener(PlayPage page, int portListener)
-		{
-			brodcastListener = new ConnectionUDP(page, "SERVER");
-			brodcastListener.initUDPListener(portListener);
 		}
 
 		public void addForPlayer1Listener(PlayPage page, int portListener)

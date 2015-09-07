@@ -30,21 +30,21 @@ namespace testUniveralApp
     public partial class PlayPage : Page
     {
 		int speedPlayer;
-		string portUDP;
+		string portUDP1, portUDP2;
 		string name { get; set; }
 		string type { get; set; }
-
-
 		UDPClient serverUDP;
 		UDPClientFinder finderUDP;
 		Server server;
-		Client client, clientTest;
+		Client client;
 	
 		public PlayPage()
         {
             this.InitializeComponent();
+			
 			this.speedPlayer = 10;
-			this.portUDP = "4000";
+			this.portUDP1 = "4000";
+			this.portUDP2 = "4001";
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -55,7 +55,10 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				/*{
+				serverUDP = new UDPClient(this, portUDP1, name);
+				serverUDP.Start();
+
+				{
 					server = new Server(name);
 					client = new Client(name);
 					server.addForPlayer1Listener(this, 80);
@@ -63,21 +66,18 @@ namespace testUniveralApp
 					server.addForPlayer1Sender(81);
 					client.initClientSender(80);
 					server.sendToPlayer1("Wait for another player.");
-				}*/
-				serverUDP = new UDPClient(this, portUDP, name);
-				serverUDP.Start();	
+				}
 			}
 			else if (type.Equals("c"))
-
 			{
-				finderUDP = new UDPClientFinder(this, portUDP);
+				finderUDP = new UDPClientFinder(this, portUDP1);
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
-				/*
-				client = new Client(name);
-				client.initClientListener(this, 83);
-				client.initClientSender(82);
-		*/	}
+				
+				//client = new Client(name);
+				//client.initClientListener(this, 83);
+				//client.initClientSender(82);
+			}
 		}
 
 		public void addTCPsecondPlayer()
@@ -103,7 +103,13 @@ namespace testUniveralApp
 				{
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
+					viewServers.SelectionChanged += ListView_SelectionChanged;
 				});
+		}
+
+		private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			addTCPsecondPlayer();
 		}
 
 		private void playerButtonMovePointer(object sender, PointerRoutedEventArgs e)
@@ -160,40 +166,11 @@ namespace testUniveralApp
 				enemyButton.Margin.Bottom);
 		}
 
-		public static string GetLocalIPv4()
-		{
-			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			var icp = NetworkInformation.GetInternetConnectionProfile();
-
-			if (icp != null && icp.NetworkAdapter != null)
-			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
-				{
-					// the ip address
-					return hostname.CanonicalName;
-				}
-			}
-
-			return null;
-		}
-
 		private void find_Click(object sender, RoutedEventArgs e)
 		{
 			finderUDP.BroadcastIP();
 		}
 
-		private void viewServers_ItemClick(object sender, ItemClickEventArgs e)
-		{
-			DisplayMessages(e.ClickedItem.ToString());
-		}
 	}
 
 }
