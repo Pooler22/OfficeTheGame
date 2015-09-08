@@ -11,73 +11,69 @@ namespace testUniveralApp
 {
 	public partial class Server
     {
-		ConnectionTCP toClient1;
-		ConnectionTCP toClient2;
-		GameData data;
+		ConnectionTCP Client1, Client2;
 		PlayPage playPage;
 
 		public Server(PlayPage playPage, string name = "Server")
 		{
+			this.Client1 = new ConnectionTCP(playPage, name);
+			this.Client2 = new ConnectionTCP(playPage, name);
 			this.playPage = playPage;
-			toClient1 = new ConnectionTCP(playPage, name);
-			toClient2 = new ConnectionTCP(playPage, name);
-			toClient2.Changed += OnConnectionReceived;
+			Client2.Received += OnReceived;
 		}
 
-		public void addForPlayer1Listener(string portListener)
+		private void OnReceived(string remoteName, string remoteAdress, string remotePort)
 		{
-			toClient1.initListener(portListener);
-		}
-
-		public void addForPlayer2Listener(string portListener)
-		{
-			toClient2.initListener(portListener);
-		}
-
-		private void OnConnectionReceived(object sender, string remoteName, string remoteAdress, string remotePort)
-		{
-			playPage.DisplayMessages("Check Name C:" + remoteName + " S:" + toClient1.name);
-			toClient2.initSender("8024", remoteAdress);
-			if (toClient1.name.Equals(remoteName.Split('\r')[0]))
+			Client2.initSender("8024", remoteAdress);
+			if (Client1.name.Equals(remoteName.Split('\r')[0]))
 			{
-				playPage.DisplayMessages("this same");
-				toClient2.SendRequest("Fuck you!\r\n");
+				playPage.DisplayMessages("Check Name: this same");
+				Client2.SendRequest("No acces\r\n");
 			}
 			else
 			{
-				playPage.DisplayMessages("diff name");
+				playPage.DisplayMessages("Check Name: diff name");
 				playPage.AddClient(remoteName.Split('\r')[0]);
 			}
 
 		}
 
+		public void addForPlayer1Listener(string portListener)
+		{
+			Client1.initListener(portListener);
+		}
+
+		public void addForPlayer2Listener(string portListener)
+		{
+			Client2.initListener(portListener);
+		}
+
 		public void addForPlayer1Sender(string portSender, string remoteAdress)
 		{
-			toClient1.initSender(portSender, remoteAdress);
+			Client1.initSender(portSender, remoteAdress);
 		}
 
 		public void addForPlayer2Sender(string portSender, string remoteAdress)
 		{
-			toClient2.initSender(portSender, remoteAdress);
+			Client2.initSender(portSender, remoteAdress);
 		}
 		
 		public void sendToPlayer1(string message)
 		{
-			toClient1.SendRequest(message);
+			Client1.SendRequest(message);
 		}
 
 		public void sendToPlayer2(string message)
 		{
-			toClient2.SendRequest(message);
+			Client2.SendRequest(message);
 		}
-
 
 		internal void Dispose()
 		{
-			if (toClient1 != null)
-				toClient1.Dispose();
-			if (toClient2 != null)
-				toClient2.Dispose();
+			if (Client1 != null)
+				Client1.Dispose();
+			if (Client2 != null)
+				Client2.Dispose();
 		}
 	}
 }

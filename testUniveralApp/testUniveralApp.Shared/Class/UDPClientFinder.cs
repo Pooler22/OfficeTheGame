@@ -15,17 +15,15 @@ namespace testUniveralApp
 {
 	class UDPClientFinder
 	{
-		string portSender;
-		string portListener;
-		DatagramSocket sender;
-		DatagramSocket listener;
+		string portListener, portSender;
+		DatagramSocket listener, sender;
 		PlayPage playPage;
 
-		public UDPClientFinder(PlayPage playPage, string port)
+		public UDPClientFinder(PlayPage playPage, string portSender)
 		{
-			this.portSender = port;
-			this.playPage = playPage;
+			this.portSender = portSender;
 			this.portListener = "4441";
+			this.playPage = playPage;
 		}
 
 		public void Start()
@@ -38,8 +36,6 @@ namespace testUniveralApp
 				.Wait();
 		}
 
-		
-
 		public async Task initFinder()
 		{
 			try
@@ -48,14 +44,11 @@ namespace testUniveralApp
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
 				listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
-				
-				//listener.BindServiceNameAsync(portListener);
-				//listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
-				playPage.DisplayMessages("UDP Finder start" + LocalIPAddress() + " " + portListener);
+				playPage.DisplayMessages("UDP Finder [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages("Error: UDP Finder start " + ex.ToString());
+				playPage.DisplayMessages("ERROR: UDP Finder [local]:" + portListener + " started\n" + ex.ToString());
 			}
 		}
 		
@@ -74,12 +67,6 @@ namespace testUniveralApp
 
 				reader.Dispose();
 				playPage.AddServer(msg);
-
-				//string meaasge2 = "ready " + " portSender ip";
-				//byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
-				//System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
-
-				//await SendMessage(bytes1, args.RemoteAddress.DisplayName.ToString(), message);
 			}
 			catch (Exception ex)
 			{
@@ -97,7 +84,6 @@ namespace testUniveralApp
 
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
-			
 			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
 			{
 				using (var writer = new DataWriter(stream))
@@ -186,9 +172,7 @@ namespace testUniveralApp
 					return hostname.CanonicalName;
 				}
 			}
-
 			return null;
 		}
-
 	}
 }

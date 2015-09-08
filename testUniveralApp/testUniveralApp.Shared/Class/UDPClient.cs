@@ -15,16 +15,15 @@ namespace testUniveralApp
 	class UDPClient
 	{
 		byte[] bytes;
-		string portListener, name;
-		string portSender = "4441";
-		DatagramSocket sender;
-		DatagramSocket listener;
+		string name, portListener, portSender;
+		DatagramSocket sender, listener;
 		PlayPage playPage;
 
-		public UDPClient(PlayPage page, string port, string name)
+		public UDPClient(PlayPage page, string portListener, string name)
 		{
+			portSender = "4441";
+			this.portListener = portListener;
 			this.playPage = page;
-			this.portListener = port;
 			this.name = name;
 
 			bytes = new byte[name.Length * sizeof(char)];
@@ -69,17 +68,14 @@ namespace testUniveralApp
 		{
 			try
 			{
-				//sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
 				listener.BindEndpointAsync(new HostName(LocalIPAddress()), portListener);
-				//await listener.BindEndpointAsync(new HostName("192.168.1.102"), portSender);
-				//await listener.BindServiceNameAsync(portSender);
-				playPage.DisplayMessages("Start UDP server");
+				playPage.DisplayMessages("UDP Listener [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages("Error: Start UDP server" + ex.ToString());
+				playPage.DisplayMessages("ERROR: UDP Listener [local]:" + portListener + " started\n" + ex.ToString());
 			}
 		}
 
@@ -98,7 +94,6 @@ namespace testUniveralApp
 				string meaasge2 = LocalIPAddress() + " " + name;
 				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
-				//SendMessage(bytes1, "255.255.255.255", portSender);
 				SendMessage(bytes1, "255.255.255.255", portSender);
 				reader.Dispose();
 			}
@@ -127,14 +122,13 @@ namespace testUniveralApp
 					writer.WriteBytes(message);
 					await writer.StoreAsync();
 					playPage.DisplayMessages("Send Message host: " + host + " portSender: " + port);
-					
 				}
-				sender.Dispose();
 			}
 			catch
 			{
 				playPage.DisplayMessages("Error: Send Message");
 			}
+			sender.Dispose();
 		}
 	}
 }

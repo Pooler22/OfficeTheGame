@@ -7,7 +7,6 @@ namespace testUniveralApp
     class Client
     {
 		ConnectionTCP toServerTCP;
-		GameData data;
 
 		public Client(PlayPage page, string name)
 		{

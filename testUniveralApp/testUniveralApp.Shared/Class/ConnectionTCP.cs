@@ -14,12 +14,13 @@ namespace testUniveralApp
 {
     class ConnectionTCP
     {
-		public delegate void ChangedEventHandler(object sender, string e, string remoteAdress, string remotePort);
+		public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
+		public event ChangedEventHandler Received;
+		
 		public string name { get; set; }
 		StreamSocketListener listener = null;
 		StreamSocket sender = null;
 		PlayPage playPage;
-		public event ChangedEventHandler Changed;
 
 		public ConnectionTCP(PlayPage playPage, string name)
 		{
@@ -39,10 +40,6 @@ namespace testUniveralApp
 				.Wait();
 		}
 
-		private void MyHandler(object sender, EventArgs args)
-		{
-		}
-
 		private async Task Listener(string portListener)
 		{
 			try
@@ -52,26 +49,12 @@ namespace testUniveralApp
 					listener = new StreamSocketListener();
 					listener.ConnectionReceived += OnConnectionReceived;
 					await listener.BindServiceNameAsync(portListener.ToString());
-					DisplayMessages("TCP Listener[" + portListener + "] started");
-					
+					playPage.DisplayMessages("TCP Listener [local]:" + portListener + " started");	
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("ERROR: TCP Listener[" + portListener + "] started");
-			}
-		}
-
-		protected virtual void OnNumChanged(string request, string remoteAdress, string remotePort)
-		{
-			if (Changed != null)
-			{
-				playPage.DisplayMessages("!!Event works");
-				Changed(this, request, remoteAdress, remotePort);
-			}
-			else
-			{
-				playPage.DisplayMessages("!!Event fired!");
+				playPage.DisplayMessages("ERROR: TCP Listener [local]:" + portListener + " started\n" + ex.ToString());
 			}
 		}
 
@@ -79,7 +62,7 @@ namespace testUniveralApp
 		{
 			try
 			{
-				DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
+				playPage.DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
 				while (true)
 				{
 					string request = await Read(args.Socket.InputStream);
@@ -88,16 +71,22 @@ namespace testUniveralApp
 					{
 						return;
 					}
-					DisplayMessages("Recived TCP " + request);
-					OnNumChanged(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
+					playPage.DisplayMessages("Recived TCP " + request);
+					OnReceived(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
 					//string response = "Respone.\r\n";
 					//await Send(args.Socket.OutputStream, response);
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("Recived TCP " + ex.ToString());
+				playPage.DisplayMessages("Recived TCP " + ex.ToString());
 			}
+		}
+
+		protected virtual void OnReceived(string request, string remoteAdress, string remotePort)
+		{
+			if (Received != null)
+				Received(request, remoteAdress, remotePort);
 		}
 
 		private void DisposeListener()
@@ -106,13 +95,11 @@ namespace testUniveralApp
 			{
 				listener.Dispose();
 				listener = null;
-				DisplayMessages(name + "TCP Dispose listening");
 			}
 		}
 
 		private async Task<string> Read(IInputStream inputStream)
 		{
-			
 			DataReader reader = new DataReader(inputStream);
 			reader.InputStreamOptions = InputStreamOptions.Partial;
 
@@ -122,7 +109,7 @@ namespace testUniveralApp
 				uint bytesRead = await reader.LoadAsync(16);
 				if (bytesRead == 0)
 				{
-					DisplayMessages(name + " The connection was closed by remote host.");
+					playPage.DisplayMessages(name + " The connection was closed by remote host.");
 					break;
 				}
 
@@ -162,11 +149,11 @@ namespace testUniveralApp
 			{
 				sender = new StreamSocket();
 				await sender.ConnectAsync(new HostName(remoteAdress), portSender);
-				DisplayMessages("TPC Sender[" + remoteAdress + ":" + portSender + "] started");
+				playPage.DisplayMessages("TPC Sender[" + remoteAdress + ":" + portSender + "] started");
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages("ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started" + ex.ToString());
+				playPage.DisplayMessages("ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started\n" + ex.ToString());
 			}
 		}
 
@@ -187,7 +174,6 @@ namespace testUniveralApp
 			{
 				sender.Dispose();
 				sender = null;
-				DisplayMessages("TCP Disconnect sender");
 			}
 		}
 
@@ -214,11 +200,6 @@ namespace testUniveralApp
 			}
 
 			return null;
-		}
-
-		private void DisplayMessages(string message)
-		{
-			playPage.DisplayMessages(message);
 		}
 
 		internal void Dispose()
