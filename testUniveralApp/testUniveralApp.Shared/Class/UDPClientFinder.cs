@@ -68,12 +68,12 @@ namespace testUniveralApp
 				reader.InputStreamOptions = InputStreamOptions.Partial;
 				uint bytesRead = reader.UnconsumedBufferLength;
 				string message = reader.ReadString(bytesRead);
-
+				string msg = message.Replace("\0", string.Empty);
 				playPage.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
 				reader.Dispose();
-				playPage.AddServer(message);
+				playPage.AddServer(msg);
 
 				//string meaasge2 = "ready " + " portSender ip";
 				//byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];

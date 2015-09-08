@@ -113,11 +113,6 @@ namespace testUniveralApp
 		//view
 		public async void DisplayMessages(string message)
 		{
-			if(message.Contains("start"))
-			{
-				//server.addForPlayer2Sender(83, "192.168.1.103");
-				DisplayMessages("wow");
-			}
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
@@ -132,7 +127,7 @@ namespace testUniveralApp
 				(unused) =>
 				{
 				//	viewServers.Visibility = Visibility.Visible;
-					viewServers.IsEnabled = true;
+					//viewServers.IsEnabled = true;
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
@@ -140,10 +135,8 @@ namespace testUniveralApp
 		}
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			List<string> lista = e.AddedItems[0].ToString().Split(' ').ToList<string>();
-			DisplayMessages(lista.ElementAt(0));
-			client.initClientSender(portTCP2L, "192.168.1.102");
-			client.sendToServer(name + "\r\n");
+			client.initClientSender(portTCP2L, e.AddedItems[0].ToString().Split(' ')[0]);
+			client.sendToServer(name);
 		}
 
 		public async void AddClient(string message)
@@ -153,9 +146,9 @@ namespace testUniveralApp
 				{
 					//viewClient.Visibility = Visibility.Visible;
 					viewClient.IsEnabled = true;
-					viewClient.Items.Add("Accept " + message);
+					viewClient.Items.Add("Accept " + message + "\r\n");
 					viewClient.SelectionChanged += ServerListView_SelectionChanged1;
-					viewClient.Items.Add("Cancel " + message);
+					viewClient.Items.Add("Cancel " + message + "\r\n");
 					viewClient.SelectionChanged += ServerListView_SelectionChanged2;
 					viewClient.ScrollIntoView("Cancel " + message);
 				});
@@ -200,15 +193,6 @@ namespace testUniveralApp
 		{
 			this.Dispose();
 			this.Frame.GoBack();
-		}
-
-		void find_Click(object sender, RoutedEventArgs e)
-		{
-			//server.addForPlayer2Listener(this, 82);
-			//clienttest = new Client("ww");
-			//clienttest.initClientListener(this, 83);
-			//clienttest.initClientSender(82, "192.168.1.103");
-			//clienttest.sendToServer("start");
 		}
 
 		//movement
