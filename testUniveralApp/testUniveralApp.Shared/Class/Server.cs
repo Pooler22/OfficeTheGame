@@ -37,10 +37,10 @@ namespace testUniveralApp
 		private void OnConnectionReceived(object sender, string remoteName, string remoteAdress, string remotePort)
 		{
 			playPage.DisplayMessages("Check Name C:" + remoteName + " S:" + toClient1.name);
+			toClient2.initSender("8024", remoteAdress);
 			if (toClient1.name.Equals(remoteName.Split('\r')[0]))
 			{
 				playPage.DisplayMessages("this same");
-				toClient2.initSender("8024", remoteAdress);
 				toClient2.SendRequest("Fuck you!\r\n");
 			}
 			else

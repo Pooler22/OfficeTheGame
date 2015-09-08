@@ -112,22 +112,7 @@ namespace testUniveralApp
 
 		private async Task<string> Read(IInputStream inputStream)
 		{
-			DataReader reader = new DataReader(inputStream);
-			reader.InputStreamOptions = InputStreamOptions.Partial;
-			uint bytesRead = reader.UnconsumedBufferLength;
-			String message = reader.ReadString(bytesRead);
-			reader.Dispose();
-
-			byte[] myByteArray = new byte[message.Length];
-			for (int ix = 0; ix < message.Length; ++ix)
-			{
-				char ch = message[ix];
-				myByteArray[ix] = (byte)ch;
-			}
-
-			message = Encoding.UTF8.GetString(myByteArray, 0, message.Length);
 			
-			/*
 			DataReader reader = new DataReader(inputStream);
 			reader.InputStreamOptions = InputStreamOptions.Partial;
 
@@ -145,7 +130,7 @@ namespace testUniveralApp
 			}
 
 			reader.DetachStream();
-			*/
+			
 			return message;
 		}
 

@@ -126,8 +126,6 @@ namespace testUniveralApp
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
-				//	viewServers.Visibility = Visibility.Visible;
-					//viewServers.IsEnabled = true;
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
@@ -144,24 +142,19 @@ namespace testUniveralApp
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
-					//viewClient.Visibility = Visibility.Visible;
 					viewClient.IsEnabled = true;
 					viewClient.Items.Add("Accept " + message + "\r\n");
-					viewClient.SelectionChanged += ServerListView_SelectionChanged1;
 					viewClient.Items.Add("Cancel " + message + "\r\n");
-					viewClient.SelectionChanged += ServerListView_SelectionChanged2;
 					viewClient.ScrollIntoView("Cancel " + message);
+					viewClient.SelectionChanged += ServerListView_SelectionChanged1;
+					
 				});
 		}
 		void ServerListView_SelectionChanged1(object sender, SelectionChangedEventArgs e)
 		{
-			server.sendToPlayer2("accept\r\n");
+			string s = e.AddedItems[0].ToString();
+			server.sendToPlayer2(s + "\r\n");
 		}
-		void ServerListView_SelectionChanged2(object sender, SelectionChangedEventArgs e)
-		{
-			server.sendToPlayer2("cancel\r\n");
-		}
-
 
 		//click event
 
