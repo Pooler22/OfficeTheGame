@@ -21,22 +21,22 @@ namespace testUniveralApp
 			toClient2 = new ConnectionTCP(page, name);
 		}
 
-		public void addForPlayer1Listener(int portListener)
+		public void addForPlayer1Listener(string portListener)
 		{
 			toClient1.initListener(portListener);
 		}
 
-		public void addForPlayer2Listener(PlayPage page, int portListener)
+		public void addForPlayer2Listener(string portListener)
 		{
 			toClient2.initListener(portListener);
 		}
 
-		public void addForPlayer1Sender(int portSender, string remoteAdress)
+		public void addForPlayer1Sender(string portSender, string remoteAdress)
 		{
 			toClient1.initSender(portSender, remoteAdress);
 		}
 
-		public void addForPlayer2Sender(int portSender, string remoteAdress)
+		public void addForPlayer2Sender(string portSender, string remoteAdress)
 		{
 			toClient2.initSender(portSender, remoteAdress);
 		}

@@ -29,7 +29,8 @@ namespace testUniveralApp
 {
     public partial class PlayPage : Page, IDisposable
     {
-		int speedPlayer;
+		int speedPlayer; 
+		string portTCP1L, portTCP1S, portTCP2L, portTCP2S;
 		string portUDP1, portUDP2;
 		string name { get; set; }
 		string type { get; set; }
@@ -45,6 +46,35 @@ namespace testUniveralApp
 			this.speedPlayer = 10;
 			this.portUDP1 = "4444";
 			this.portUDP2 = "4001";
+			portTCP1L = "8021";
+			portTCP1S = "8022";
+			portTCP2L = "8023";
+			portTCP2S = "8024";
+		}
+
+		public static string LocalIPAddress()
+		{
+			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
+			var icp = NetworkInformation.GetInternetConnectionProfile();
+
+			if (icp != null && icp.NetworkAdapter != null)
+			{
+				var hostname =
+					NetworkInformation.GetHostNames()
+						.SingleOrDefault(
+							hn =>
+							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
+							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
+							== icp.NetworkAdapter.NetworkAdapterId);
+
+				if (hostname != null)
+				{
+					// the ip address
+					return hostname.CanonicalName;
+				}
+			}
+
+			return null;
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -55,19 +85,20 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				{
-					serverUDP = new UDPClient(this, portUDP1, name);
-					serverUDP.Start();
-				}
-				{
-					server = new Server(this,name);
-					client = new Client(this, name);
-					server.addForPlayer1Listener(80);
-					client.initClientListener(81);
-					server.addForPlayer1Sender(81, "192.168.1.103");
-					client.initClientSender(80, "192.168.1.103");
-					server.sendToPlayer1("Wait for another player.");	
-				}
+				serverUDP = new UDPClient(this, portUDP1, name);
+				serverUDP.Start();
+				server = new Server(this,name);
+				client = new Client(this, name);
+
+				server.addForPlayer1Listener(portTCP1L);
+				client.initClientListener(portTCP1S);
+				server.addForPlayer2Listener(portTCP2L);
+
+				client.initClientSender(portTCP1L, LocalIPAddress());
+				server.addForPlayer1Sender(portTCP1S, LocalIPAddress());
+				client.sendToServer("Client 1 to server");
+				server.sendToPlayer1("Wait for another player.");
+				//server.addForPlayer2Sender(82, "192.168.1.103");
 			}
 			else if (type.Equals("c"))
 			{
@@ -75,15 +106,11 @@ namespace testUniveralApp
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
 				
-				//client = new Client(this,name);
-				//server.addForPlayer2Sender(82, "192.168.1.102");
+				client = new Client(this,name);
+				client.initClientListener(portTCP2S);
+				
+				
 			}
-		}
-
-		public void addTCPsecondPlayer()
-		{
-			//client.initClientListener(this, 83);
-			//client.initClientSender(82, "192.168.1.102");
 		}
 
 		//view
@@ -115,8 +142,10 @@ namespace testUniveralApp
 
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			DisplayMessages(e.AddedItems[0].ToString() + " " + e.ToString());
-			//addTCPsecondPlayer();
+			List<string> lista = e.AddedItems[0].ToString().Split(' ').ToList<string>();
+			DisplayMessages(lista.ElementAt(0));
+			client.initClientSender(portTCP2L, "192.168.1.102");
+			//client.sendToServer("CLIENT2 SEND MESSAGE!!");
 		}
 
 		//click event
@@ -153,11 +182,11 @@ namespace testUniveralApp
 
 		void find_Click(object sender, RoutedEventArgs e)
 		{
-			server.addForPlayer2Listener(this, 82);
+			//server.addForPlayer2Listener(this, 82);
 			//clienttest = new Client("ww");
 			//clienttest.initClientListener(this, 83);
-			clienttest.initClientSender(82, "192.168.1.103");
-			clienttest.sendToServer("start");
+			//clienttest.initClientSender(82, "192.168.1.103");
+			//clienttest.sendToServer("start");
 		}
 
 		//movement

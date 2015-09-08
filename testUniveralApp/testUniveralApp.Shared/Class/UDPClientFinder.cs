@@ -75,7 +75,6 @@ namespace testUniveralApp
 				reader.Dispose();
 				playPage.AddServer(message);
 
-
 				//string meaasge2 = "ready " + " portSender ip";
 				//byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				//System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);

@@ -95,7 +95,7 @@ namespace testUniveralApp
 				playPage.DisplayMessages("Message received from [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-				string meaasge2 = "ready " + LocalIPAddress();
+				string meaasge2 = LocalIPAddress() + " " + name;
 				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
 				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
 				//SendMessage(bytes1, "255.255.255.255", portSender);

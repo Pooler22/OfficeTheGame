@@ -14,12 +14,12 @@ namespace testUniveralApp
 			this.toServerTCP = new ConnectionTCP(page, name);
 		}
 
-		public void initClientListener(int portListener)
+		public void initClientListener(string portListener)
 		{
 			toServerTCP.initListener(portListener);
 		}
 
-		public void initClientSender(int portSender, string remoteAdress)
+		public void initClientSender(string portSender, string remoteAdress)
 		{
 			toServerTCP.initSender(portSender, remoteAdress);
 		}
