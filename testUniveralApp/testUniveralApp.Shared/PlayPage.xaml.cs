@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
-using Windows.Networking.Connectivity;
+using testUniveralApp.Class;
 
 namespace testUniveralApp
 {
@@ -15,10 +14,9 @@ namespace testUniveralApp
 		string portUDP1, portUDP2;
 		string name { get; set; }
 		string type { get; set; }
-		UDPClient serverUDP;
-		UDPClientFinder finderUDP;
-		Server server;
-		Client client;
+
+		GameServer gameServer;
+		GameClient gameClient;
 	
 		public PlayPage()
         {
@@ -33,31 +31,6 @@ namespace testUniveralApp
 			this.portTCP2S = "8024";
 		}
 
-		public static string LocalIPAddress()
-		{
-			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			var icp = NetworkInformation.GetInternetConnectionProfile();
-
-			if (icp != null && icp.NetworkAdapter != null)
-			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
-				{
-					// the ip address
-					return hostname.CanonicalName;
-				}
-			}
-
-			return null;
-		}
-
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
 			this.name = e.Parameter as string;
@@ -66,27 +39,11 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				serverUDP = new UDPClient(this, name, portUDP1, portUDP2);
-				serverUDP.Start();
-				server = new Server(this, portTCP2S, name);
-				client = new Client(this, name);
-
-				server.addForPlayer1Listener(portTCP1L);
-				client.initClientListener(portTCP1S);
-				server.addForPlayer2Listener(portTCP2L);
-
-				client.initClientSender(portTCP1L, LocalIPAddress());
-				server.addForPlayer1Sender(portTCP1S, LocalIPAddress());
-				server.sendToPlayer1("Wait for another player.");
+				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S);
 			}
 			else if (type.Equals("c"))
 			{
-				finderUDP = new UDPClientFinder(this,name, portUDP2, portUDP1);
-				finderUDP.Start();
-				finderUDP.BroadcastIP();
-				
-				client = new Client(this,name);
-				client.initClientListener(portTCP2S);
+				gameClient = new GameClient(this, name, portUDP1, portUDP2, portTCP2S);
 			}
 		}
 
@@ -114,8 +71,7 @@ namespace testUniveralApp
 		
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			client.initClientSender(portTCP2L, e.AddedItems[0].ToString().Split(' ')[0]);
-			client.sendToServer(name);
+			gameClient.sendToServerName(portTCP2L, e.AddedItems[0].ToString().Split(' ')[0]);
 		}
 
 		public async void AddClient(string message)
@@ -134,7 +90,7 @@ namespace testUniveralApp
 		
 		void ClientListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			server.sendToPlayer2(e.AddedItems[0].ToString() + "\r\n");
+			gameServer.sendToPlayer2(e.AddedItems[0].ToString());
 		}
 
 		//click event
@@ -191,23 +147,14 @@ namespace testUniveralApp
 
 		public void Dispose()
 		{
-			if (finderUDP != null)
+			if (gameServer != null)
 			{
-				finderUDP.Dispose();
+				gameServer.Dispose();
 			}
-			if (serverUDP != null)
+			if (gameClient != null)
 			{
-				serverUDP.Dispose();
-			}
-			if (client != null)
-			{
-				client.Dispose();
-			}
-			if (server != null)
-			{
-				server.Dispose();
+				gameClient.Dispose();
 			}
 		}
-
 	}
 }
