@@ -46,6 +46,7 @@ namespace testUniveralApp
 			else
 			{
 				playPage.DisplayMessages("diff name");
+				playPage.AddClient(remoteName.Split('\r')[0]);
 			}
 
 		}

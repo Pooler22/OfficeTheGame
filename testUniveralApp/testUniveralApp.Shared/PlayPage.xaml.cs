@@ -131,19 +131,44 @@ namespace testUniveralApp
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
+				//	viewServers.Visibility = Visibility.Visible;
+					viewServers.IsEnabled = true;
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
 				});
 		}
-
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			List<string> lista = e.AddedItems[0].ToString().Split(' ').ToList<string>();
 			DisplayMessages(lista.ElementAt(0));
 			client.initClientSender(portTCP2L, "192.168.1.102");
-			client.sendToServer(name+"\r\n");
+			client.sendToServer(name + "\r\n");
 		}
+
+		public async void AddClient(string message)
+		{
+			await Dispatcher.RunIdleAsync(
+				(unused) =>
+				{
+					//viewClient.Visibility = Visibility.Visible;
+					viewClient.IsEnabled = true;
+					viewClient.Items.Add("Accept " + message);
+					viewClient.SelectionChanged += ServerListView_SelectionChanged1;
+					viewClient.Items.Add("Cancel " + message);
+					viewClient.SelectionChanged += ServerListView_SelectionChanged2;
+					viewClient.ScrollIntoView("Cancel " + message);
+				});
+		}
+		void ServerListView_SelectionChanged1(object sender, SelectionChangedEventArgs e)
+		{
+			server.sendToPlayer2("accept\r\n");
+		}
+		void ServerListView_SelectionChanged2(object sender, SelectionChangedEventArgs e)
+		{
+			server.sendToPlayer2("cancel\r\n");
+		}
+
 
 		//click event
 
