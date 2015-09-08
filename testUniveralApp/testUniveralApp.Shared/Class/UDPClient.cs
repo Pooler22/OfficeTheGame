@@ -1,60 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Sockets;
-using System.IO;
 using Windows.Storage.Streams;
-using Windows.Networking.Connectivity;
+using testUniveralApp.Class;
 
 namespace testUniveralApp
 {
 	class UDPClient
 	{
-		byte[] bytes;
 		string name, portListener, portSender;
 		DatagramSocket sender, listener;
 		PlayPage playPage;
 
-		public UDPClient(PlayPage page, string portListener, string name)
+		public UDPClient(PlayPage playPage, string name, string portListener, string portSender)
 		{
-			portSender = "4441";
-			this.portListener = portListener;
-			this.playPage = page;
+			this.playPage = playPage;
 			this.name = name;
-
-			bytes = new byte[name.Length * sizeof(char)];
-			System.Buffer.BlockCopy(name.ToCharArray(), 0, bytes, 0, bytes.Length);
+			this.portListener = portListener;
+			this.portSender = portSender;
 		}
 		
-		public static string LocalIPAddress()
-		{
-			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			var icp = NetworkInformation.GetInternetConnectionProfile();
-
-			if (icp != null && icp.NetworkAdapter != null)
-			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
-				{
-					// the ip address
-					return hostname.CanonicalName;
-				}
-			}
-
-			return null;
-		}
-
 		public void Start()
 		{
 			Task.Run(
@@ -70,7 +36,7 @@ namespace testUniveralApp
 			{
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				listener.BindEndpointAsync(new HostName(LocalIPAddress()), portListener);
+				listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
 				playPage.DisplayMessages("UDP Listener [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
@@ -88,13 +54,10 @@ namespace testUniveralApp
 				uint bytesRead = reader.UnconsumedBufferLength;
 				String message = reader.ReadString(bytesRead);
 
-				playPage.DisplayMessages("Message received from [" +
+				playPage.DisplayMessages("Message received [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
 
-				string meaasge2 = LocalIPAddress() + " " + name;
-				byte[] bytes1 = new byte[meaasge2.Length * sizeof(char)];
-				System.Buffer.BlockCopy(meaasge2.ToCharArray(), 0, bytes1, 0, bytes1.Length);
-				SendMessage(bytes1, "255.255.255.255", portSender);
+				SendMessage(IPAdress.LocalIPAddress() + " " + name, "255.255.255.255", portSender);
 				reader.Dispose();
 			}
 			catch (Exception ex)
@@ -103,14 +66,19 @@ namespace testUniveralApp
 			}			
 		}
 
-		public void Dispose()
+		public void SendMessage(string message, string host, string port)
 		{
-			if (sender != null) 
-				sender.Dispose();
-			if (listener != null) 
-				listener.Dispose();
+			byte[] bytes1 = new byte[message.Length * sizeof(char)];
+			System.Buffer.BlockCopy(message.ToCharArray(), 0, bytes1, 0, bytes1.Length);
+
+			Task.Run(
+				async () =>
+				{
+					await SendMessage(bytes1, host, port);
+				})
+				.Wait();
 		}
-		
+
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
 			sender = new DatagramSocket();
@@ -121,14 +89,22 @@ namespace testUniveralApp
 					var writer = new DataWriter(stream);
 					writer.WriteBytes(message);
 					await writer.StoreAsync();
-					playPage.DisplayMessages("Send Message host: " + host + " portSender: " + port);
+					playPage.DisplayMessages("Send message");
 				}
 			}
-			catch
+			catch (Exception ex)
 			{
-				playPage.DisplayMessages("Error: Send Message");
+				playPage.DisplayMessages("Error: Send Message\n" + ex.ToString());
 			}
 			sender.Dispose();
+		}
+		
+		public void Dispose()
+		{
+			if (sender != null) 
+				sender.Dispose();
+			if (listener != null) 
+				listener.Dispose();
 		}
 	}
 }

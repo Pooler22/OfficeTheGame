@@ -1,29 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking.Connectivity;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
-using System.IO;
-using System.Net;
-using System.Net.NetworkInformation;
+using testUniveralApp.Class;
 
 namespace testUniveralApp
 {
 	class UDPClientFinder
 	{
-		string portListener, portSender;
+		string portListener, portSender, name;
 		DatagramSocket listener, sender;
 		PlayPage playPage;
 
-		public UDPClientFinder(PlayPage playPage, string portSender)
+		public UDPClientFinder(PlayPage playPage, string name, string portListener, string portSender)
 		{
-			this.portSender = portSender;
-			this.portListener = "4441";
 			this.playPage = playPage;
+			this.name = name;
+			this.portListener = portListener;
+			this.portSender = portSender;
 		}
 
 		public void Start()
@@ -43,7 +41,7 @@ namespace testUniveralApp
 				sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				listener.BindEndpointAsync(new HostName(GetLocalIPv4()), portListener);
+				listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
 				playPage.DisplayMessages("UDP Finder [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
@@ -82,6 +80,14 @@ namespace testUniveralApp
 				listener.Dispose();
 		}
 
+		public async void BroadcastIP()
+		{
+			string str = "discovery";
+			byte[] bytes = new byte[str.Length * sizeof(char)];
+			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+			SendMessage(bytes,  "255.255.255.255", portSender);
+		}
+
 		public async Task SendMessage(byte[] message, string host, string port)
 		{
 			using (var stream = await sender.GetOutputStreamAsync(new HostName(host), port))
@@ -92,87 +98,14 @@ namespace testUniveralApp
 					{
 						writer.WriteBytes(message);
 						await writer.StoreAsync();
-						playPage.DisplayMessages("Send Message portSender: " + host + " " + port);
+						playPage.DisplayMessages("Send message");
 					}
 					catch (Exception ex)
 					{
-						playPage.DisplayMessages("Error Send Message");
+						playPage.DisplayMessages("Error Send message\n" + ex.ToString());
 					}
 				}
 			}
-		}
-		
-		public static string LocalIPAddress()
-		{
-			List<string> ipAddresses = new List<string>();
-			var hostnames = NetworkInformation.GetHostNames();
-			foreach (var hn in hostnames)
-			{
-				if (hn.IPInformation != null &&
-					(hn.IPInformation.NetworkAdapter.IanaInterfaceType == 71 // Wifi
-					|| hn.IPInformation.NetworkAdapter.IanaInterfaceType == 6)) // Ethernet (Emulator) 
-				{
-					string ipAddress = hn.DisplayName;
-					ipAddresses.Add(ipAddress);
-				}
-				
-			}
-			
-			if (ipAddresses.Count < 1)
-			{
-				return null;
-			}
-			else if (ipAddresses.Count == 1)
-			{
-				return ipAddresses[0];
-			}
-			else
-			{
-				//if multiple suitable address were found use the last one
-				//(regularly the external interface of an emulated device)
-				return ipAddresses[ipAddresses.Count - 1];
-			}
-		}
-
-		public async void BroadcastIP()
-		{
-			string str = "discovery";
-			byte[] bytes = new byte[str.Length * sizeof(char)];
-			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-			SendMessage(bytes,  "255.255.255.255", portSender);
-		}
-
-		byte[] IPMessage()
-		{
-			//IP Address to byte()
-			string[] strIPTemp = LocalIPAddress().Split('.');
-			if (strIPTemp.Length != 4) throw new Exception("Invalid IP Address");
-			return Enumerable.Range(0, 5).Select(x =>
-						(x == 0) ? (byte)1 : Convert.ToByte(strIPTemp[x - 1])).ToArray();
-		}
-
-		public static string GetLocalIPv4()
-		{
-			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			var icp = NetworkInformation.GetInternetConnectionProfile();
-
-			if (icp != null && icp.NetworkAdapter != null)
-			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
-				{
-					// the ip address
-					return hostname.CanonicalName;
-				}
-			}
-			return null;
 		}
 	}
 }

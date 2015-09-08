@@ -1,28 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Diagnostics;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Core;
-using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
-using Windows.Networking;
 using Windows.Networking.Connectivity;
 
 namespace testUniveralApp
@@ -37,7 +18,7 @@ namespace testUniveralApp
 		UDPClient serverUDP;
 		UDPClientFinder finderUDP;
 		Server server;
-		Client client, clienttest;
+		Client client;
 	
 		public PlayPage()
         {
@@ -46,10 +27,10 @@ namespace testUniveralApp
 			this.speedPlayer = 10;
 			this.portUDP1 = "4444";
 			this.portUDP2 = "4001";
-			portTCP1L = "8021";
-			portTCP1S = "8022";
-			portTCP2L = "8023";
-			portTCP2S = "8024";
+			this.portTCP1L = "8021";
+			this.portTCP1S = "8022";
+			this.portTCP2L = "8023";
+			this.portTCP2S = "8024";
 		}
 
 		public static string LocalIPAddress()
@@ -85,9 +66,9 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				serverUDP = new UDPClient(this, portUDP1, name);
+				serverUDP = new UDPClient(this, name, portUDP1, portUDP2);
 				serverUDP.Start();
-				server = new Server(this,name);
+				server = new Server(this, portTCP2S, name);
 				client = new Client(this, name);
 
 				server.addForPlayer1Listener(portTCP1L);
@@ -96,12 +77,11 @@ namespace testUniveralApp
 
 				client.initClientSender(portTCP1L, LocalIPAddress());
 				server.addForPlayer1Sender(portTCP1S, LocalIPAddress());
-				client.sendToServer("Client 1 to server");
 				server.sendToPlayer1("Wait for another player.");
 			}
 			else if (type.Equals("c"))
 			{
-				finderUDP = new UDPClientFinder(this, portUDP1);
+				finderUDP = new UDPClientFinder(this,name, portUDP2, portUDP1);
 				finderUDP.Start();
 				finderUDP.BroadcastIP();
 				
@@ -131,6 +111,7 @@ namespace testUniveralApp
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
 				});
 		}
+		
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			client.initClientSender(portTCP2L, e.AddedItems[0].ToString().Split(' ')[0]);
@@ -146,41 +127,17 @@ namespace testUniveralApp
 					viewClient.Items.Add("Accept " + message + "\r\n");
 					viewClient.Items.Add("Cancel " + message + "\r\n");
 					viewClient.ScrollIntoView("Cancel " + message);
-					viewClient.SelectionChanged += ServerListView_SelectionChanged1;
+					viewClient.SelectionChanged += ClientListView_SelectionChanged;
 					
 				});
 		}
-		void ServerListView_SelectionChanged1(object sender, SelectionChangedEventArgs e)
+		
+		void ClientListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			string s = e.AddedItems[0].ToString();
-			server.sendToPlayer2(s + "\r\n");
+			server.sendToPlayer2(e.AddedItems[0].ToString() + "\r\n");
 		}
 
 		//click event
-
-		public void Dispose()
-		{
-			if (finderUDP != null)
-			{
-				finderUDP.Dispose();
-			}
-			if (serverUDP != null)
-			{
-				serverUDP.Dispose();
-			}
-			if (client != null)
-			{
-				client.Dispose();
-			}
-			if (clienttest != null)
-			{
-				clienttest.Dispose();
-			}
-			if (server != null)
-			{
-				server.Dispose();
-			}
-		}
 
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
@@ -229,7 +186,28 @@ namespace testUniveralApp
 				enemyButton.Margin.Right,
 				enemyButton.Margin.Bottom);
 		}
+		
+		//other
+
+		public void Dispose()
+		{
+			if (finderUDP != null)
+			{
+				finderUDP.Dispose();
+			}
+			if (serverUDP != null)
+			{
+				serverUDP.Dispose();
+			}
+			if (client != null)
+			{
+				client.Dispose();
+			}
+			if (server != null)
+			{
+				server.Dispose();
+			}
+		}
 
 	}
-
 }

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Networking;
 using Windows.Networking.Connectivity;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
-
 
 namespace testUniveralApp
 {
@@ -102,8 +98,8 @@ namespace testUniveralApp
 		{
 			DataReader reader = new DataReader(inputStream);
 			reader.InputStreamOptions = InputStreamOptions.Partial;
-
 			string message = "";
+
 			while (!message.EndsWith("\r\n"))
 			{
 				uint bytesRead = await reader.LoadAsync(16);
@@ -112,18 +108,14 @@ namespace testUniveralApp
 					playPage.DisplayMessages(name + " The connection was closed by remote host.");
 					break;
 				}
-
 				message += reader.ReadString(bytesRead);
 			}
-
 			reader.DetachStream();
-			
 			return message;
 		}
 
 		private async Task Send(IOutputStream outputStream, string message)
 		{
-			
 			DataWriter writer = new DataWriter(outputStream);
 			uint messageLength = writer.MeasureString(message);
 			writer.WriteString(message);
@@ -175,31 +167,6 @@ namespace testUniveralApp
 				sender.Dispose();
 				sender = null;
 			}
-		}
-
-
-		public static string GetLocalIPv4()
-		{
-			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
-			var icp = NetworkInformation.GetInternetConnectionProfile();
-
-			if (icp != null && icp.NetworkAdapter != null)
-			{
-				var hostname =
-					NetworkInformation.GetHostNames()
-						.SingleOrDefault(
-							hn =>
-							hn.IPInformation != null && hn.IPInformation.NetworkAdapter != null
-							&& hn.IPInformation.NetworkAdapter.NetworkAdapterId
-							== icp.NetworkAdapter.NetworkAdapterId);
-
-				if (hostname != null)
-				{
-					return hostname.CanonicalName;
-				}
-			}
-
-			return null;
 		}
 
 		internal void Dispose()

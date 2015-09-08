@@ -1,38 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Networking;
-using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
-using Windows.UI.Xaml.Controls;
-
-namespace testUniveralApp
+﻿namespace testUniveralApp
 {
 	public partial class Server
     {
+		string portSender;
 		ConnectionTCP Client1, Client2;
 		PlayPage playPage;
 
-		public Server(PlayPage playPage, string name = "Server")
+		public Server(PlayPage playPage, string portSender, string name = "Server")
 		{
 			this.Client1 = new ConnectionTCP(playPage, name);
 			this.Client2 = new ConnectionTCP(playPage, name);
 			this.playPage = playPage;
+			this.portSender = portSender;
 			Client2.Received += OnReceived;
 		}
 
 		private void OnReceived(string remoteName, string remoteAdress, string remotePort)
 		{
-			Client2.initSender("8024", remoteAdress);
+			Client2.initSender(portSender, remoteAdress);
 			if (Client1.name.Equals(remoteName.Split('\r')[0]))
 			{
-				playPage.DisplayMessages("Check Name: this same");
+				playPage.DisplayMessages("Check name: this same names");
 				Client2.SendRequest("No acces\r\n");
 			}
 			else
 			{
-				playPage.DisplayMessages("Check Name: diff name");
+				playPage.DisplayMessages("Check name: different name");
 				playPage.AddClient(remoteName.Split('\r')[0]);
 			}
 
