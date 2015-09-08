@@ -98,7 +98,6 @@ namespace testUniveralApp
 				server.addForPlayer1Sender(portTCP1S, LocalIPAddress());
 				client.sendToServer("Client 1 to server");
 				server.sendToPlayer1("Wait for another player.");
-				//server.addForPlayer2Sender(82, "192.168.1.103");
 			}
 			else if (type.Equals("c"))
 			{
@@ -108,8 +107,6 @@ namespace testUniveralApp
 				
 				client = new Client(this,name);
 				client.initClientListener(portTCP2S);
-				
-				
 			}
 		}
 
@@ -145,7 +142,7 @@ namespace testUniveralApp
 			List<string> lista = e.AddedItems[0].ToString().Split(' ').ToList<string>();
 			DisplayMessages(lista.ElementAt(0));
 			client.initClientSender(portTCP2L, "192.168.1.102");
-			//client.sendToServer("CLIENT2 SEND MESSAGE!!");
+			client.sendToServer(name+"\r\n");
 		}
 
 		//click event

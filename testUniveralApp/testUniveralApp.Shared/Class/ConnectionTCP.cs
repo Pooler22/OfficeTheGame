@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,10 +14,12 @@ namespace testUniveralApp
 {
     class ConnectionTCP
     {
-		string name;
+		public delegate void ChangedEventHandler(object sender, string e, string remoteAdress, string remotePort);
+		public string name { get; set; }
 		StreamSocketListener listener = null;
 		StreamSocket sender = null;
 		PlayPage playPage;
+		public event ChangedEventHandler Changed;
 
 		public ConnectionTCP(PlayPage playPage, string name)
 		{
@@ -36,6 +39,10 @@ namespace testUniveralApp
 				.Wait();
 		}
 
+		private void MyHandler(object sender, EventArgs args)
+		{
+		}
+
 		private async Task Listener(string portListener)
 		{
 			try
@@ -46,11 +53,25 @@ namespace testUniveralApp
 					listener.ConnectionReceived += OnConnectionReceived;
 					await listener.BindServiceNameAsync(portListener.ToString());
 					DisplayMessages("TCP Listener[" + portListener + "] started");
+					
 				}
 			}
 			catch (Exception ex)
 			{
 				DisplayMessages("ERROR: TCP Listener[" + portListener + "] started");
+			}
+		}
+
+		protected virtual void OnNumChanged(string request, string remoteAdress, string remotePort)
+		{
+			if (Changed != null)
+			{
+				playPage.DisplayMessages("!!Event works");
+				Changed(this, request, remoteAdress, remotePort);
+			}
+			else
+			{
+				playPage.DisplayMessages("!!Event fired!");
 			}
 		}
 
@@ -62,18 +83,20 @@ namespace testUniveralApp
 				while (true)
 				{
 					string request = await Read(args.Socket.InputStream);
+
 					if (String.IsNullOrEmpty(request))
 					{
 						return;
 					}
-					DisplayMessages(request);
-					string response = "Respone.\r\n";
-					await Send(args.Socket.OutputStream, response);
+					DisplayMessages("Recived TCP " + request);
+					OnNumChanged(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
+					//string response = "Respone.\r\n";
+					//await Send(args.Socket.OutputStream, response);
 				}
 			}
 			catch (Exception ex)
 			{
-				DisplayMessages(ex.ToString());
+				DisplayMessages("Recived TCP " + ex.ToString());
 			}
 		}
 
@@ -148,8 +171,8 @@ namespace testUniveralApp
 			{
 				request += "\r\n";
 				await Send(sender.OutputStream, request);
-				string response = await Read(sender.InputStream);
-				DisplayMessages(response);
+				//string response = await Read(sender.InputStream);
+				//DisplayMessages(response);
 			}
 		}
 

@@ -14,11 +14,14 @@ namespace testUniveralApp
 		ConnectionTCP toClient1;
 		ConnectionTCP toClient2;
 		GameData data;
+		PlayPage playPage;
 
-		public Server(PlayPage page, string name = "Server")
+		public Server(PlayPage playPage, string name = "Server")
 		{
-			toClient1 = new ConnectionTCP(page, name);
-			toClient2 = new ConnectionTCP(page, name);
+			this.playPage = playPage;
+			toClient1 = new ConnectionTCP(playPage, name);
+			toClient2 = new ConnectionTCP(playPage, name);
+			toClient2.Changed += OnConnectionReceived;
 		}
 
 		public void addForPlayer1Listener(string portListener)
@@ -29,6 +32,22 @@ namespace testUniveralApp
 		public void addForPlayer2Listener(string portListener)
 		{
 			toClient2.initListener(portListener);
+		}
+
+		private void OnConnectionReceived(object sender, string remoteName, string remoteAdress, string remotePort)
+		{
+			playPage.DisplayMessages("Check Name C:" + remoteName + " S:" + toClient1.name);
+			if (toClient1.name.Equals(remoteName.Split('\r')[0]))
+			{
+				playPage.DisplayMessages("this same");
+				toClient2.initSender("8024", remoteAdress);
+				toClient2.SendRequest("Fuck you!\r\n");
+			}
+			else
+			{
+				playPage.DisplayMessages("diff name");
+			}
+
 		}
 
 		public void addForPlayer1Sender(string portSender, string remoteAdress)
