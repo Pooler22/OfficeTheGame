@@ -8,7 +8,7 @@ using Windows.Storage.Streams;
 
 namespace testUniveralApp
 {
-    class ConnectionTCP
+    class TCPClient
     {
 		public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
 		public event ChangedEventHandler Received;
@@ -18,7 +18,7 @@ namespace testUniveralApp
 		StreamSocket sender = null;
 		PlayPage playPage;
 
-		public ConnectionTCP(PlayPage playPage, string name)
+		public TCPClient(PlayPage playPage, string name)
 		{
 			this.playPage = playPage;
 			this.name = name;	

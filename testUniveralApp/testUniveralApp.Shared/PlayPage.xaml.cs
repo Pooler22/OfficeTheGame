@@ -9,8 +9,8 @@ namespace testUniveralApp
 {
     public partial class PlayPage : Page, IDisposable
     {
-		int speedPlayer; 
-		string portTCP1L, portTCP1S, portTCP2L, portTCP2S;
+		int speedPlayer;
+		string portTCP1L, portTCP1S, portTCP2L, portTCP2S, portListener;
 		string portUDP1, portUDP2;
 
 		GameServer gameServer;
@@ -19,14 +19,15 @@ namespace testUniveralApp
 		public PlayPage()
         {
             this.InitializeComponent();
-			
+
 			this.speedPlayer = 10;
 			this.portUDP1 = "4444";
-			this.portUDP2 = "4001";
-			this.portTCP1L = "8021";
-			this.portTCP1S = "8022";
-			this.portTCP2L = "8023";
-			this.portTCP2S = "8024";
+			this.portUDP2 = "4444";
+			this.portTCP1L = "8001";
+			this.portTCP1S = "8002";
+			this.portTCP2L = "8003";
+			this.portTCP2S = "8004";
+			this.portListener = "8005";
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -37,11 +38,11 @@ namespace testUniveralApp
 
 			if (type.Equals("s"))
 			{
-				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S);
+				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S, portListener);
 			}
 			else if (type.Equals("c"))
 			{
-				gameClient = new GameClient(this, name, portUDP1, portUDP2, portTCP2S);
+				gameClient = new GameClient(this, name, portUDP1, portUDP2, portTCP2L);
 			}
 		}
 
@@ -70,7 +71,7 @@ namespace testUniveralApp
 		
 		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			gameClient.sendToServerName(portTCP2L, e.AddedItems[0].ToString().Split(' ')[0]);
+			gameClient.sendToServerName(portListener, e.AddedItems[0].ToString().Split(' ')[0]);
 		}
 
 		public async void AddClient(string message)

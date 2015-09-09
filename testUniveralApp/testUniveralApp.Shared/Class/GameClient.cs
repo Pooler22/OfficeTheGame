@@ -7,10 +7,10 @@ namespace testUniveralApp.Class
     class GameClient
     {
 		UDPClientFinder finderUDP;
-		ConnectionTCP client;
+		TCPClient client;
 		string name;
 
-		public GameClient(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP2S)
+		public GameClient(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP2L)
 		{
 			this.name = name;
 
@@ -18,8 +18,8 @@ namespace testUniveralApp.Class
 			finderUDP.Start();
 			finderUDP.SendDiscovery();
 
-			client = new ConnectionTCP(playpage, name);
-			client.initListener(portTCP2S);
+			client = new TCPClient(playpage, name);
+			client.initListener(portTCP2L);
 		}
 
 		public void sendToServerName(string port, string adres)

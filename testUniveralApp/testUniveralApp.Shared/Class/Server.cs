@@ -3,13 +3,13 @@
 	public partial class Server
     {
 		string portSender;
-		ConnectionTCP Client1, Client2;
+		TCPClient Client1, Client2;
 		PlayPage playPage;
 
 		public Server(PlayPage playPage, string portSender, string name = "Server")
 		{
-			this.Client1 = new ConnectionTCP(playPage, name);
-			this.Client2 = new ConnectionTCP(playPage, name);
+			this.Client1 = new TCPClient(playPage, name);
+			this.Client2 = new TCPClient(playPage, name);
 			this.playPage = playPage;
 			this.portSender = portSender;
 			Client2.Received += OnReceived;

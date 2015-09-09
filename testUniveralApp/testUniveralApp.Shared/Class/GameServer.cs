@@ -8,16 +8,25 @@ namespace testUniveralApp.Class
     {
 		UDPClient serverUDP;
 		Server server;
-		ConnectionTCP client;
+		TCPClient client;
+		TCPListener listener;
+		PlayPage playpage;
+		string portTCP2L;
 
-		public GameServer(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP1L, string portTCP1S, string portTCP2L, string portTCP2S)
+		public GameServer(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP1L, string portTCP1S, string portTCP2L, string portTCP2S, string portListener)
 		{
+			this.portTCP2L = portTCP2L;
+			this.playpage = playpage;
 			serverUDP = new UDPClient(playpage, name, portUDP1, portUDP2);
 			serverUDP.Start();
 
-			server = new Server(playpage, portTCP2S, name);
-			client = new ConnectionTCP(playpage, name);
+			listener = new TCPListener(playpage, name);
+			listener.initListener(portListener);
+			listener.Received += OnReceived;
 
+			server = new Server(playpage, portTCP2S, name);
+			client = new TCPClient(playpage, name);
+			
 			server.addForPlayer1Listener(portTCP1L);
 			client.initListener(portTCP1S);
 			server.addForPlayer2Listener(portTCP2L);
@@ -27,9 +36,25 @@ namespace testUniveralApp.Class
 			server.sendToPlayer1("Wait for another player.");
 		}
 
+		private void OnReceived(string remoteName, string remoteAdress, string remotePort)
+		{
+			listener.initSender(portTCP2L, remoteAdress);
+			if (listener.name.Equals(remoteName.Split('\r')[0]))
+			{
+				playpage.DisplayMessages("Check name: this same names");
+				listener.SendRequest("No acces\r\n");
+			}
+			else
+			{
+				playpage.DisplayMessages("Check name: different name");
+				playpage.AddClient(remoteName.Split('\r')[0]);
+			}
+
+		}
+
 		public void sendToPlayer2(string message)
 		{
-			server.sendToPlayer2(message + "\r\n");
+			listener.SendRequest(message);
 		}
 
 		public void Dispose()
