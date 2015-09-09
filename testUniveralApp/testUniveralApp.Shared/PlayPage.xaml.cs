@@ -12,8 +12,6 @@ namespace testUniveralApp
 		int speedPlayer; 
 		string portTCP1L, portTCP1S, portTCP2L, portTCP2S;
 		string portUDP1, portUDP2;
-		string name { get; set; }
-		string type { get; set; }
 
 		GameServer gameServer;
 		GameClient gameClient;
@@ -33,9 +31,9 @@ namespace testUniveralApp
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
 		{
-			this.name = e.Parameter as string;
-			this.type = name.Substring(0, 1);
-			this.name = name.Substring(1);
+			string name = e.Parameter as string;
+			string type = name.Substring(0, 1);
+			name = name.Substring(1);
 
 			if (type.Equals("s"))
 			{
@@ -63,6 +61,7 @@ namespace testUniveralApp
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
+					viewServers.Visibility = Visibility.Visible;
 					viewServers.Items.Add(message);
 					viewServers.ScrollIntoView(message);
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
@@ -79,6 +78,7 @@ namespace testUniveralApp
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
 				{
+					viewClient.Visibility = Visibility.Visible;
 					viewClient.IsEnabled = true;
 					viewClient.Items.Add("Accept " + message + "\r\n");
 					viewClient.Items.Add("Cancel " + message + "\r\n");

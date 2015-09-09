@@ -8,7 +8,7 @@ namespace testUniveralApp.Class
     {
 		UDPClient serverUDP;
 		Server server;
-		Client client;
+		ConnectionTCP client;
 
 		public GameServer(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP1L, string portTCP1S, string portTCP2L, string portTCP2S)
 		{
@@ -16,12 +16,12 @@ namespace testUniveralApp.Class
 			serverUDP.Start();
 
 			server = new Server(playpage, portTCP2S, name);
-			client = new Client(playpage, name);
+			client = new ConnectionTCP(playpage, name);
 
 			server.addForPlayer1Listener(portTCP1L);
-			client.initClientListener(portTCP1S);
+			client.initListener(portTCP1S);
 			server.addForPlayer2Listener(portTCP2L);
-			client.initClientSender(portTCP1L, IPAdress.LocalIPAddress());
+			client.initSender(portTCP1L, IPAdress.LocalIPAddress());
 			server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
 			
 			server.sendToPlayer1("Wait for another player.");

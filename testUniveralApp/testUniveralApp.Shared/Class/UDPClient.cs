@@ -56,8 +56,8 @@ namespace testUniveralApp
 
 				playPage.DisplayMessages("Message received [" +
 					args.RemoteAddress.DisplayName.ToString() + "]:" + args.RemotePort + ": " + message);
-
-				SendMessage(IPAdress.LocalIPAddress() + " " + name, "255.255.255.255", portSender);
+				
+				SendMessage(IPAdress.LocalIPAddress() + " " + name, args.RemoteAddress.DisplayName.ToString(), portSender);
 				reader.Dispose();
 			}
 			catch (Exception ex)

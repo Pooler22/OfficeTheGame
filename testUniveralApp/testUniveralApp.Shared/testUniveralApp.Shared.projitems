@@ -15,7 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Class\Client.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\GameClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\GameData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\GameServer.cs" />

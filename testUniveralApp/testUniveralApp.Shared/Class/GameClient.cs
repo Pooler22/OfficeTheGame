@@ -7,7 +7,7 @@ namespace testUniveralApp.Class
     class GameClient
     {
 		UDPClientFinder finderUDP;
-		Client client;
+		ConnectionTCP client;
 		string name;
 
 		public GameClient(PlayPage playpage, string name, string portUDP1, string portUDP2, string portTCP2S)
@@ -16,16 +16,16 @@ namespace testUniveralApp.Class
 
 			finderUDP = new UDPClientFinder(playpage, name, portUDP2, portUDP1);
 			finderUDP.Start();
-			finderUDP.BroadcastIP();
+			finderUDP.SendDiscovery();
 
-			client = new Client(playpage, name);
-			client.initClientListener(portTCP2S);
+			client = new ConnectionTCP(playpage, name);
+			client.initListener(portTCP2S);
 		}
 
 		public void sendToServerName(string port, string adres)
 		{
-			client.initClientSender(port, adres);
-			client.sendToServer(name);
+			client.initSender(port, adres);
+			client.SendRequest(name);
 		}
 
 		public void Dispose()

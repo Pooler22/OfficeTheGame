@@ -80,7 +80,7 @@ namespace testUniveralApp
 				listener.Dispose();
 		}
 
-		public async void BroadcastIP()
+		public async void SendDiscovery()
 		{
 			string str = "discovery";
 			byte[] bytes = new byte[str.Length * sizeof(char)];
