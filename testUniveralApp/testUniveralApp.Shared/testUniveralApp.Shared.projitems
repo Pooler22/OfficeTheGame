@@ -22,8 +22,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Class\Server.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\TCPClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\TCPListener.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPClient.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPClientFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\UDPListenerFinder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

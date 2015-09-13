@@ -1,0 +1,48 @@
+﻿<Page
+    x:Class="testUniveralApp.PlayPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:testUniveralApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" KeyDown="playerButtonMoveKeys">
+
+    <Grid Grid.Row="4" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+        <ProgressBar x:Name="loadingBar" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Top" IsIndeterminate="True" IsEnabled="False" Height="10"/>
+        <Grid x:Name="controlPanel" Grid.Column="3" MaxHeight="56" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="quitButton" Content="Quit" Click="Button_Click_Back_To_MainPage" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Stretch" Margin="0"/>
+        </Grid>
+        <Canvas x:Name="playPanel" UseLayoutRounding="True" Margin="0" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled" Loaded="setStartPlayersPositions">
+            <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Top" HorizontalAlignment="Stretch" VerticalContentAlignment="Top" Margin="0" Width="200" Height="50" />
+            <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="30" RenderTransformOrigin="0.5,0.5" Width="30" Canvas.Left="4" Canvas.Top="115">
+                <Ellipse.RenderTransform>
+                    <CompositeTransform TranslateX="6"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer"/>
+        </Canvas>
+        <Grid x:Name="massage" Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <ListView x:Name="view" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Visible" Margin="0" Header="Logs:" />
+            <ListView x:Name="viewServers" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"  Margin="0" IsEnabled="True" Grid.Row="1" Header="Servers:" Visibility="Collapsed"/>
+            <ListView x:Name="viewClient" ScrollViewer.HorizontalScrollBarVisibility="Auto" VerticalContentAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" Margin="0" IsEnabled="True"  Grid.Row="1" CanDragItems="True" Header="Clients:" Visibility="Collapsed"/>
+
+            <!--
+            <TextBox x:Name="inTextBox" IsEnabled="False" TextAlignment="Center" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="50" Margin="0" Grid.Row="1"/>
+            <Button x:Name="sendButton" Content="Send" IsEnabled="False" Padding="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="50" Margin="0" Grid.Row="2"/>
+            -->
+        </Grid>
+    </Grid>
+</Page>

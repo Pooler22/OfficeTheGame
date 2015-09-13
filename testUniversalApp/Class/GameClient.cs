@@ -31,14 +31,8 @@ namespace testUniveralApp.Class
             firstConnectionClient.Received += OnReceived;
 
             client = new TCPClient(playpage, name);
-            client.Received += OnReceived1;
             client.initListener(portTCP2L);
             this.portTCP2S = portTCP2S;
-        }
-
-        private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
-        {
-            playpage.DisplayMessages("WOW " + remoteMessage);
         }
 
         private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)

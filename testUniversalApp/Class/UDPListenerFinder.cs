@@ -10,13 +10,13 @@ using testUniveralApp.Class;
 
 namespace testUniveralApp
 {
-	class UDPClientFinder
+	class UDPListenerFinder
 	{
 		string portListener, portSender, name;
 		DatagramSocket listener, sender;
 		PlayPage playPage;
 
-		public UDPClientFinder(PlayPage playPage, string name, string portListener, string portSender)
+		public UDPListenerFinder(PlayPage playPage, string name, string portListener, string portSender)
 		{
 			this.playPage = playPage;
 			this.name = name;
@@ -41,7 +41,7 @@ namespace testUniveralApp
 				sender = new DatagramSocket();
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
+				await listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
 				playPage.DisplayMessages("UDP Finder [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
@@ -85,7 +85,7 @@ namespace testUniveralApp
 			string str = "discovery";
 			byte[] bytes = new byte[str.Length * sizeof(char)];
 			System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-			SendMessage(bytes,  "255.255.255.255", portSender);
+            await SendMessage(bytes, "255.255.255.255", portSender);
 		}
 
 		public async Task SendMessage(byte[] message, string host, string port)

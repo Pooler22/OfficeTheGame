@@ -1,27 +1,25 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Networking;
-using Windows.Networking.Connectivity;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
 namespace testUniveralApp
 {
-	class TCPListener
-	{
+    class TCPClient
+    {
 		public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
 		public event ChangedEventHandler Received;
-
+		
 		public string name { get; set; }
 		StreamSocketListener listener = null;
 		StreamSocket sender = null;
 		PlayPage playPage;
 
-		public TCPListener(PlayPage playPage, string name)
+		public TCPClient(PlayPage playPage, string name)
 		{
 			this.playPage = playPage;
-			this.name = name;
+			this.name = name;	
 		}
 
 		//listener
@@ -45,12 +43,12 @@ namespace testUniveralApp
 					listener = new StreamSocketListener();
 					listener.ConnectionReceived += OnConnectionReceived;
 					await listener.BindServiceNameAsync(portListener.ToString());
-					playPage.DisplayMessages(name + " :LISTENER: TCP Listener [local]:" + portListener + " started");
+					playPage.DisplayMessages("TCP Listener [local]:" + portListener + " started");	
 				}
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages(name + " :ERROR: LISTENER: TCP Listener [local]:" + portListener + " started\n" + ex.ToString());
+				playPage.DisplayMessages("ERROR: TCP Listener [local]:" + portListener + " started\n" + ex.ToString());
 			}
 		}
 
@@ -67,15 +65,15 @@ namespace testUniveralApp
 					{
 						return;
 					}
+					playPage.DisplayMessages("Recived TCP " + request);
 					OnReceived(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
-					playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + request);
 					//string response = "Respone.\r\n";
 					//await Send(args.Socket.OutputStream, response);
 				}
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + ex.ToString());
+				playPage.DisplayMessages("Recived TCP " + ex.ToString());
 			}
 		}
 
@@ -105,7 +103,7 @@ namespace testUniveralApp
 				uint bytesRead = await reader.LoadAsync(16);
 				if (bytesRead == 0)
 				{
-					playPage.DisplayMessages(name + " :LISTENER:  The connection was closed by remote host.");
+					playPage.DisplayMessages(name + " The connection was closed by remote host.");
 					break;
 				}
 				message += reader.ReadString(bytesRead);
@@ -141,11 +139,11 @@ namespace testUniveralApp
 			{
 				sender = new StreamSocket();
 				await sender.ConnectAsync(new HostName(remoteAdress), portSender);
-				playPage.DisplayMessages(name + " :TPC Sender[" + remoteAdress + ":" + portSender + "] started");
+				playPage.DisplayMessages("TPC Sender[" + remoteAdress + ":" + portSender + "] started");
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages(name + " :ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started\n" + ex.ToString());
+				playPage.DisplayMessages("ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started\n" + ex.ToString());
 			}
 		}
 

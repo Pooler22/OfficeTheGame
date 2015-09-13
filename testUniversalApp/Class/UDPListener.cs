@@ -7,13 +7,13 @@ using testUniveralApp.Class;
 
 namespace testUniveralApp
 {
-	class UDPClient
+	class UDPListener
 	{
 		string name, portListener, portSender;
 		DatagramSocket sender, listener;
 		PlayPage playPage;
 
-		public UDPClient(PlayPage playPage, string name, string portListener, string portSender)
+		public UDPListener(PlayPage playPage, string name, string portListener, string portSender)
 		{
 			this.playPage = playPage;
 			this.name = name;
@@ -36,7 +36,7 @@ namespace testUniveralApp
 			{
 				listener = new DatagramSocket();
 				listener.MessageReceived += MessageReceived;
-				listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
+				await listener.BindEndpointAsync(new HostName(IPAdress.LocalIPAddress()), portListener);
 				playPage.DisplayMessages("UDP Listener [local]:" + portListener + " started");
 			}
 			catch (Exception ex)
@@ -62,7 +62,7 @@ namespace testUniveralApp
 			}
 			catch (Exception ex)
 			{
-				playPage.DisplayMessages("ERROR: Message received from:");
+				playPage.DisplayMessages("ERROR: Message received from:\n" + ex.ToString());
 			}			
 		}
 
