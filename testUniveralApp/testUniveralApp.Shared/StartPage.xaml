@@ -18,7 +18,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBlock Text="What's your name?" Width="200" Height="50" VerticalAlignment="Center" FontSize="24" UseLayoutRounding="True" TextAlignment="Center" Margin="0"/>
-            <TextBox x:Name="nameInput" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name"  VerticalAlignment="Center" FontSize="24" Height="50" Margin="0" Grid.Row="1"/>
+            <TextBox x:Name="nameInput" Width="200" PlaceholderText="" ToolTipService.ToolTip="Your name"  VerticalAlignment="Center" FontSize="24" Height="50" Margin="0" Grid.Row="1" Text="Name"/>
             <Button x:Name="inputButton" Content="Start!" Click="Button_Click_Set_Name" HorizontalAlignment="Stretch" Width="200" Padding="0" VerticalAlignment="Center" FontSize="24" Margin="0" Grid.Row="2"/>
             <TextBlock x:Name="greetingOutput" Width="200" Height="50" RenderTransformOrigin="0.5,0.5" TextAlignment="Center" VerticalAlignment="Center" Margin="0" FontSize="20" Grid.Row="3"/>
         </Grid>

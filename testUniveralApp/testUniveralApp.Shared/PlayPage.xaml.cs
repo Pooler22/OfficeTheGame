@@ -5,6 +5,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 using testUniveralApp.Class;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Shapes;
 
 namespace testUniveralApp
 {
@@ -25,7 +26,7 @@ namespace testUniveralApp
 
 			this.speedPlayer = 10;
 			this.portUDP1 = "4444";
-			this.portUDP2 = "4444";
+			this.portUDP2 = "4445";
 			this.portTCP1L = "8001";
 			this.portTCP1S = "8002";
 			this.portTCP2L = "8003";
@@ -43,6 +44,7 @@ namespace testUniveralApp
 			if (type.Equals("s"))
 			{
 				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S, portTCP3L, portTCP3S);
+                gameServer.Received2 += OnReceived;
                 play();
             }
 			else if (type.Equals("c"))
@@ -51,34 +53,92 @@ namespace testUniveralApp
                 gameClient.Received += OnReceived;
                 // play();
             }
+
+            setButtonSize();
+            centerButtonPosition();
         }
 
+        async void setButtonSize()
+        {
+            await Dispatcher.RunIdleAsync(
+                (unused) =>
+                {
+                    playerButton.Width = (int)(ActualWidth / 10);
+                    enemyButton.Width = (int)(ActualWidth / 10);
+                });
+        }
+
+        async void centerButtonPosition()
+        {
+            await Dispatcher.RunIdleAsync(
+                (unused) =>
+                {
+                    playerButton.Margin = new Thickness((ActualWidth / 2) - (playerButton.Width / 2),
+                    playerButton.Margin.Top,
+                    playerButton.Margin.Right,
+                    playerButton.Margin.Bottom);
+                    enemyButton.Margin = new Thickness((ActualWidth / 2) - (enemyButton.Width / 2),
+                    enemyButton.Margin.Top,
+                    enemyButton.Margin.Right,
+                    enemyButton.Margin.Bottom);
+                });
+        }
+         
         void play()
         {
+            int xMove = 4;
+            int yMove = -1;
+            int xPos = 50;
+            int yPos = 50;
             Task.Run(
                    async () =>
                     {    
-                        await Task.Delay(1000);
                         while (true)
                         {
                             {
                                 await Dispatcher.RunIdleAsync(
                                 (unused) =>
                                 {
-                                    gameServer.sendToPlayer1("play");
-                                    gameServer.sendToPlayer2("play");
+
+                                    //if((ball.Margin.Left + ball.ActualWidth >= playPanel.ActualWidth) || (ball.Margin.Left < 0))
+                                    //{
+                                    //    xMove = -xMove;
+                                    //}
+                                    //if ((ball.Margin.Top - ball.ActualHeight >= playPanel.ActualHeight) || (ball.Margin.Top < 0))
+                                    //{
+                                    //    ymove = -ymove;
+                                    //}
+                                    //setButtonPosition(ball, xPos, yPos);
+
+                                    yPos += yMove;
+                                    if(yPos >= 100 || yPos <= 0)
+                                    {
+                                        yPos = -yPos;
+                                    }
+                                    
+
+                                    gameServer.sendToPlayer1(xPos + " " + yPos);
+                                    gameServer.sendToPlayer2(xPos + " " + yPos);
                                     //DisplayMessages(playerButton.Margin.Left.ToString() + " " + this.ActualWidth.ToString());
                                     //gameServer.sendToServer(playerButton.Margin.ToString());
                                 });
                             }
-                            await Task.Delay(1000);
+                            await Task.Delay(10);
                         }
                     });
         }
 
-        private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
+        private async void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
         {
-            DisplayMessages("remoteMessage");
+            await Dispatcher.RunIdleAsync(
+                                (unused) =>
+                                {
+                                    setButtonPosition(
+                                        ball,
+                                        (float)(playPanel.ActualWidth * int.Parse(remoteMessage.Split(' ')[0]) / 100),
+                                        (float)(playPanel.ActualHeight * int.Parse(remoteMessage.Split(' ')[1]) / 100)
+                                       );
+                                });
         }
 
         //view
@@ -88,7 +148,7 @@ namespace testUniveralApp
 				(unused) =>
 				{
 					view.Items.Add(message);
-					view.ScrollIntoView(message);
+                    //view.ScrollIntoView(message);
 				});
 		}
 
@@ -163,19 +223,36 @@ namespace testUniveralApp
 			}
 		}
 
-		void setStartPlayersPositions(object sender, RoutedEventArgs e)
+        async void setButtonPosition(Shape button, float x, float y)
+        {
+            await Dispatcher.RunIdleAsync(
+                (unused) =>
+                {
+                    button.Margin = new Thickness(
+                        x,
+                        y,
+                        button.Margin.Right,
+                        button.Margin.Bottom);
+                });
+        }
+
+		async void setStartPlayersPositions(object sender, RoutedEventArgs e)
 		{
-			playerButton.Margin = new Thickness(
-				0,
-				playPanel.ActualHeight - (playerButton.Height),
-				playerButton.Margin.Right,
-				playerButton.Margin.Bottom);
-			enemyButton.Margin = new Thickness(
-				0,
-				0,
-				enemyButton.Margin.Right,
-				enemyButton.Margin.Bottom);
-		}
+            await Dispatcher.RunIdleAsync(
+                (unused) =>
+                {
+                    playerButton.Margin = new Thickness(
+				    0,
+				    playPanel.ActualHeight - (playerButton.Height),
+				    playerButton.Margin.Right,
+				    playerButton.Margin.Bottom);
+			        enemyButton.Margin = new Thickness(
+				    0,
+				    0,
+				    enemyButton.Margin.Right,
+				    enemyButton.Margin.Bottom);
+                });
+        }
 		
 		//other
 		public void Dispose()

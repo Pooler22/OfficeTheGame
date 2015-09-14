@@ -7,7 +7,11 @@ namespace testUniveralApp.Class
 {
     class GameServer
     {
-		UDPListener serverUDP;
+        public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
+        public event ChangedEventHandler Received;
+        public event ChangedEventHandler Received2;
+
+        UDPListener serverUDP;
         TCPClient firstConnectionClient;
 		TCPClient client;
 		Server server;
@@ -45,18 +49,19 @@ namespace testUniveralApp.Class
 			client.initSender(portTCP1L, IPAdress.LocalIPAddress());
 			server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
 			
-			server.sendToPlayer1("Wait for another player.");
-
+			//server.sendToPlayer1("50 50");
+            
             server.addForPlayer2Listener(portTCP2L);
         }
 
-        private void OnReceived1(string remoteName, string remoteAdress, string remotePort)
+        private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
         {
 
-            //playpage.DisplayMessages("WOWS " + remoteName);
+            if (Received2 != null)
+                Received2(remoteMessage, remoteAdress, remotePort);
         }
 
-        private void OnReceived(string remoteName, string remoteAdress, string remotePort)
+        private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
 		{
             if (serverBussyflag)
             {
@@ -65,7 +70,7 @@ namespace testUniveralApp.Class
             }
             else
             {
-                if (firstConnectionClient.name.Equals(remoteName.Split('\r')[0]))
+                if (firstConnectionClient.name.Equals(remoteMessage.Split('\r')[0]))
                 {
                     playpage.DisplayMessages("Check name: this same names");
                     firstConnectionClient.initSender(portTCP3S, remoteAdress); // remote port, remote ip 
@@ -78,7 +83,7 @@ namespace testUniveralApp.Class
                 else
                 {
                     playpage.DisplayMessages("Check name: different name");
-                    playpage.AddClient(remoteName.Split('\r')[0] + " " + remoteAdress + " " + remotePort);
+                    playpage.AddClient(remoteMessage.Split('\r')[0] + " " + remoteAdress + " " + remotePort);
                     server.addForPlayer2Sender(portTCP2S, remoteAdress);
                 }
             }
