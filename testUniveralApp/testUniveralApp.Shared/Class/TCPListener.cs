@@ -25,7 +25,6 @@ namespace testUniveralApp
 		}
 
 		//listener
-
 		public void initListener(string portListener)
 		{
 			Task.Run(
@@ -124,7 +123,6 @@ namespace testUniveralApp
 		}
 
 		//sender
-
 		public void initSender(string portSender, string remoteAdress)
 		{
 			Task.Run(

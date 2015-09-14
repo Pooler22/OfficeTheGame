@@ -6,7 +6,10 @@ namespace testUniveralApp.Class
 {
     class GameClient
     {
-		UDPListenerFinder finderUDP;
+        public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
+        public event ChangedEventHandler Received;
+
+        UDPListenerFinder finderUDP;
         TCPClient firstConnectionClient;
         TCPClient client;
 		string name;
@@ -38,7 +41,8 @@ namespace testUniveralApp.Class
 
         private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
         {
-            playpage.DisplayMessages("WOW " + remoteMessage);
+            if (Received != null)
+                Received(remoteMessage, remoteAdress, remotePort);
         }
 
         private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)

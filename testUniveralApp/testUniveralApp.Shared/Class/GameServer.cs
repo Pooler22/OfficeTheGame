@@ -39,7 +39,6 @@ namespace testUniveralApp.Class
             server = new Server(playpage, portTCP2S);
 			client = new TCPClient(playpage, name);
             client.Received += OnReceived1;
-
             server.addForPlayer1Listener(portTCP1L);
 			client.initListener(portTCP1S);
 			server.addForPlayer2Listener(portTCP2L);
@@ -53,7 +52,8 @@ namespace testUniveralApp.Class
 
         private void OnReceived1(string remoteName, string remoteAdress, string remotePort)
         {
-            playpage.DisplayMessages("WOWS " + remoteName);
+
+            //playpage.DisplayMessages("WOWS " + remoteName);
         }
 
         private void OnReceived(string remoteName, string remoteAdress, string remotePort)
@@ -104,17 +104,20 @@ namespace testUniveralApp.Class
                    });
         }
 
-        public void sendToPlayer2(string message)
+        public void sendIniToPlayer2(string message)
 		{
             firstConnectionClient.initSender(portTCP3S, message.Split(' ')[2]); // remote port, remote ip 
             firstConnectionClient.SendRequest(message.Split(' ')[0]); // message 
 		}
 
-        public void sendToServer(string message)
+        public void sendToPlayer1(string message)
         {
-            client.initSender(portTCP1L, IPAdress.LocalIPAddress()); // remote port, remote ip 
-            playpage.DisplayMessages(message);
-            client.SendRequest(message); // message 
+            server.sendToPlayer1(message);
+        }
+
+        public void sendToPlayer2(string message)
+        {
+            server.sendToPlayer2(message);
         }
 
         public void Dispose()

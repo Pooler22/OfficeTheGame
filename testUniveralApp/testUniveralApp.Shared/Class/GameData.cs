@@ -10,5 +10,6 @@
 		public double positionPlayer2 { get; set; }
 		public double positionBallX { get; set; }
 		public double positionBallY { get; set; }
+
 	}
 }

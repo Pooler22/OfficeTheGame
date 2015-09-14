@@ -54,7 +54,8 @@ namespace testUniveralApp
 
 		private async void OnConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
 		{
-			try
+            playPage.DisplayMessages(name + " :Recived TCP: start");
+            try
 			{
 				playPage.DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
 				while (true)
@@ -122,7 +123,6 @@ namespace testUniveralApp
 		}
 
 		//sender
-
 		public void initSender(string portSender, string remoteAdress)
 		{
 			Task.Run(

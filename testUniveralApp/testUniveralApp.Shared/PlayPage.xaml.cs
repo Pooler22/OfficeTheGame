@@ -11,7 +11,9 @@ namespace testUniveralApp
     public partial class PlayPage : Page
     {
 		int speedPlayer;
-		string portTCP1L, portTCP1S, portTCP2L, portTCP2S, portTCP3L, portTCP3S;
+        string portTCP1L, portTCP1S;
+        string portTCP2L, portTCP2S;
+        string portTCP3L, portTCP3S;
 		string portUDP1, portUDP2;
 
 		GameServer gameServer;
@@ -41,37 +43,46 @@ namespace testUniveralApp
 			if (type.Equals("s"))
 			{
 				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S, portTCP3L, portTCP3S);
-                //  play();
-                
+                play();
             }
 			else if (type.Equals("c"))
 			{
 				gameClient = new GameClient(this, name, portUDP2, portUDP1, portTCP1S, portTCP1L, portTCP2S, portTCP2L, portTCP3S, portTCP3L);
-			}
-           // DisplayMessages(this.Width.ToString());
+                gameClient.Received += OnReceived;
+                // play();
+            }
         }
 
         void play()
         {
             Task.Run(
                    async () =>
-                    {
+                    {    
                         await Task.Delay(1000);
-
                         while (true)
                         {
                             {
-                                //DisplayMessages(portUDP1);
-                              //  gameServer.sendToServer(playerButton.Margin.ToString());
+                                await Dispatcher.RunIdleAsync(
+                                (unused) =>
+                                {
+                                    gameServer.sendToPlayer1("play");
+                                    gameServer.sendToPlayer2("play");
+                                    //DisplayMessages(playerButton.Margin.Left.ToString() + " " + this.ActualWidth.ToString());
+                                    //gameServer.sendToServer(playerButton.Margin.ToString());
+                                });
                             }
                             await Task.Delay(1000);
                         }
                     });
         }
 
+        private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
+        {
+            DisplayMessages("remoteMessage");
+        }
 
-		//view
-		public async void DisplayMessages(string message)
+        //view
+        public async void DisplayMessages(string message)
 		{
 			await Dispatcher.RunIdleAsync(
 				(unused) =>
@@ -92,8 +103,8 @@ namespace testUniveralApp
 					viewServers.SelectionChanged += ServerListView_SelectionChanged;
 				});
 		}
-		
-		void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			gameClient.sendToServerName(portTCP3L, e.AddedItems[0].ToString().Split(' ')[0]);
 		}
@@ -114,11 +125,10 @@ namespace testUniveralApp
 		
 		void ClientListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			gameServer.sendToPlayer2(e.AddedItems[0].ToString());
+			gameServer.sendIniToPlayer2(e.AddedItems[0].ToString());
 		}
 
 		//click event
-
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
 		{
 			this.Dispose();
@@ -168,7 +178,6 @@ namespace testUniveralApp
 		}
 		
 		//other
-
 		public void Dispose()
         {
 			if (gameServer != null)

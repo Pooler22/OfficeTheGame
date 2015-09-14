@@ -6,7 +6,7 @@ namespace testUniveralApp.Class
 {
     class IPAdress
     {
-		public static string LocalIPAddress()
+		public static string LocalIPAddress1()
 		{
 			ConnectionProfile connectionProfile = NetworkInformation.GetInternetConnectionProfile();
 			var icp = NetworkInformation.GetInternetConnectionProfile();
@@ -29,7 +29,7 @@ namespace testUniveralApp.Class
 			return null;
 		}
 
-		public static string LocalIPAddress2()
+		public static string LocalIPAddress()
 		{
 			List<string> ipAddresses = new List<string>();
 			var hostnames = NetworkInformation.GetHostNames();
