@@ -48,17 +48,12 @@ namespace testUniveralApp.Class
 			server.addForPlayer2Listener(portTCP2L);
 			client.initSender(portTCP1L, IPAdress.LocalIPAddress());
 			server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
-			
-			//server.sendToPlayer1("50 50");
-            
             server.addForPlayer2Listener(portTCP2L);
         }
 
         private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
         {
-
-            if (Received2 != null)
-                Received2(remoteMessage, remoteAdress, remotePort);
+            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ')[1]));
         }
 
         private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
@@ -123,6 +118,11 @@ namespace testUniveralApp.Class
         public void sendToPlayer2(string message)
         {
             server.sendToPlayer2(message);
+        }
+
+        public void sendToServer(string message)
+        {
+            client.SendRequest(message);
         }
 
         public void Dispose()
