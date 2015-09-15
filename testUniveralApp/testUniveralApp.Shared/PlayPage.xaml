@@ -28,7 +28,7 @@
                 </Canvas.Background>
                 <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Width="200" Height="50" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
                 <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="30" RenderTransformOrigin="0.5,0.5" Width="30" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalAlignment="Center" HorizontalAlignment="Center" Canvas.Top="-15" Canvas.Left="-15"/>
-                <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Center" HorizontalAlignment="Center" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer"/>
+                <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Center" HorizontalAlignment="Center" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer" Padding="0" Canvas.Left="{StaticResource playerLeft}" Canvas.Top="{StaticResource playerTop}"/>
             </Canvas>
         </Grid>
         <Grid x:Name="massage" Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">

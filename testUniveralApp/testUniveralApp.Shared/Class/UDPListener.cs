@@ -19,18 +19,15 @@ namespace testUniveralApp
 			this.name = name;
 			this.portListener = portListener;
 			this.portSender = portSender;
-		}
-		
-		public void Start()
-		{
-			Task.Run(
-				async () =>
-				{
-					await initClient();
-				});
-		}
 
-		public async Task initClient()
+            Task.Run(
+                async () =>
+                {
+                    await startListener();
+                });
+        }
+
+		public async Task startListener()
 		{
 			try
 			{
@@ -45,7 +42,7 @@ namespace testUniveralApp
 			}
 		}
 
-		private void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
+		void MessageReceived(DatagramSocket socket, DatagramSocketMessageReceivedEventArgs args)
 		{
 			try
 			{

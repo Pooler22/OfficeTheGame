@@ -6,6 +6,8 @@ using Windows.UI.Xaml.Navigation;
 using testUniveralApp.Class;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Shapes;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Xaml.Data;
 
 namespace testUniveralApp
 {
@@ -16,16 +18,15 @@ namespace testUniveralApp
         string portTCP2L, portTCP2S;
         string portTCP3L, portTCP3S;
 		string portUDP1, portUDP2;
-
-		GameServer gameServer;
+        string output;
+        GameServer gameServer;
 		GameClient gameClient;
-        bool loaded = false;
 
         public PlayPage()
         {
             this.InitializeComponent();
-
-			this.speedPlayer = 10;
+            
+            this.speedPlayer = 10;
 			this.portUDP1 = "4444";
 			this.portUDP2 = "4445";
 			this.portTCP1L = "8001";
@@ -45,55 +46,13 @@ namespace testUniveralApp
 			if (type.Equals("s"))
 			{
 				gameServer = new GameServer(this, name, portUDP1, portUDP2, portTCP1L, portTCP1S, portTCP2L, portTCP2S, portTCP3L, portTCP3S);
-                play();
+                //gameServer.play();
             }
 			else if (type.Equals("c"))
 			{
 				gameClient = new GameClient(this, name, portUDP2, portUDP1, portTCP1S, portTCP1L, portTCP2S, portTCP2L, portTCP3S, portTCP3L);
-                gameClient.Received += OnReceived;
             }
-        }
-
-        void play()
-        {
-            int xMove = 4;
-            int yMove = -1;
-            int xPos = 50;
-            int yPos = 50;
-            Task.Run(
-                   async () =>
-                    {    
-                        while (true)
-                        {
-                            await Dispatcher.RunIdleAsync(
-                                (unused) =>
-                                {
-                                    if(yPos >= 100 || yPos <= 0)
-                                    {
-                                        yMove = -yMove;
-                                    }
-                                    yPos += yMove;
-                                    
-                                    gameServer.sendToPlayer1(xPos + " " + yPos);
-                                    gameServer.sendToPlayer2(xPos + " " + yPos);
-                                });
-                            await Task.Delay(10);
-                        }
-                    });
-        }
-
-        private async void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
-        {
-            await Dispatcher.RunIdleAsync(
-                (unused) =>
-                {
-                    setButtonPosition(
-                        ball,
-                        (float)(playPanel.ActualWidth * int.Parse(remoteMessage.Split(' ')[0]) / 100),
-                        (float)(playPanel.ActualHeight * int.Parse(remoteMessage.Split(' ')[1]) / 100)
-                        );
-                });
-        }
+        }   
 
         //view
         public async void DisplayMessages(string message)
@@ -121,7 +80,8 @@ namespace testUniveralApp
         void ServerListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			gameClient.sendToServerName(portTCP3L, e.AddedItems[0].ToString().Split(' ')[0]);
-		}
+            viewServers.ClearValue(ItemsControl.ItemsSourceProperty); //need test!!
+        }
 
 		public async void AddClient(string message)
 		{
@@ -139,8 +99,9 @@ namespace testUniveralApp
 		
 		void ClientListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			gameServer.sendIniToPlayer2(e.AddedItems[0].ToString());
-		}
+			gameServer.sendToSelectedClient(e.AddedItems[0].ToString());
+            viewClient.ClearValue(ItemsControl.ItemsSourceProperty); //need test!!
+        }
 
 		//click event
 		void Button_Click_Back_To_MainPage(object sender, RoutedEventArgs e)
@@ -177,32 +138,35 @@ namespace testUniveralApp
 			}
 		}
 
-        async void setButtonPosition(Shape button, float x, float y)
-        {
-            await Dispatcher.RunIdleAsync(
-                (unused) =>
-                {
-                    button.Margin = new Thickness(
-                        x,
-                        y,
-                        button.Margin.Right,
-                        button.Margin.Bottom);
-                });
-        }
-
+        //set positions
         public async void setBallPosition(float x, float y)
         {
             await Dispatcher.RunIdleAsync(
                 (unused) =>
                 {
-                    
                     ball.Margin = new Thickness(
-                        (float)(playPanel.ActualWidth * x / 100),
-                        (float)(playPanel.ActualHeight * y / 100),
+                        (float)((playPanel.ActualWidth * x) / 100),
+                        (float)((playPanel.ActualHeight * y) / 100),
                         ball.Margin.Right,
                         ball.Margin.Bottom);
                 });
         }
+
+
+        public async void OnReceived()
+        {
+            await Dispatcher.RunIdleAsync(
+                (unused) =>
+                {
+                    output = (playerButton.Margin.Left.ToString() + " " + playerButton.Margin.Top.ToString());
+                });
+        }
+
+        public string getPlayerPosition()
+        {
+            return output;
+        }
+
 
         // init canvans game
         async void intCanvansGame(object sender, RoutedEventArgs e)
@@ -222,7 +186,6 @@ namespace testUniveralApp
                         enemyButton.Margin.Right,
                         enemyButton.Margin.Bottom);
                 });
-            loaded = true;
         }
 
 		//other

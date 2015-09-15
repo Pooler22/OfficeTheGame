@@ -133,7 +133,7 @@ namespace testUniveralApp
 				.Wait();
 		}
 
-		private async Task Sender(string portSender, string remoteAdress)
+		public async Task Sender(string portSender, string remoteAdress)
 		{
 			try
 			{

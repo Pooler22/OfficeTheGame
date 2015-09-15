@@ -22,19 +22,16 @@ namespace testUniveralApp
 			this.name = name;
 			this.portListener = portListener;
 			this.portSender = portSender;
-		}
 
-		public void Start()
-		{
-			Task.Run(
-				async () =>
-				{
-					await initFinder();
-				})
-				.Wait();
-		}
+            Task.Run(
+                async () =>
+                {
+                    await initFinder();
+                })
+                .Wait();
+        }
 
-		public async Task initFinder()
+		async Task initFinder()
 		{
 			try
 			{

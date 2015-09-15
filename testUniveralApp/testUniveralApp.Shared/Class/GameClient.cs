@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Windows.UI.Xaml;
 
 namespace testUniveralApp.Class
 {
     class GameClient
     {
-        public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
+        public delegate void ChangedEventHandler();
         public event ChangedEventHandler Received;
 
         UDPListenerFinder finderUDP;
+
         TCPClient firstConnectionClient;
+
         TCPClient client;
-		string name;
         PlayPage playpage;
-        string portTCP2S;
+        string portTCP2S, name;
 
         public GameClient(PlayPage playpage, string name, 
             string portUDP1, string portUDP2,
@@ -24,36 +26,30 @@ namespace testUniveralApp.Class
 		{
             this.playpage = playpage;
             this.name = name;
+            this.portTCP2S = portTCP2S;
 
 			finderUDP = new UDPListenerFinder(playpage, name, portUDP1, portUDP2);
-			finderUDP.Start();
 			finderUDP.SendDiscovery();
 
             firstConnectionClient = new TCPClient(playpage, name);
             firstConnectionClient.initListener(portTCP3L);
-            firstConnectionClient.Received += OnReceived;
-
+            firstConnectionClient.Received += firstConnectionReceived;
+            
             client = new TCPClient(playpage, name);
-            client.Received += OnReceived1;
             client.initListener(portTCP2L);
-            this.portTCP2S = portTCP2S;
+            client.Received += OnClientReceived;
         }
 
-        private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
+        // TCP first connection
+        private void firstConnectionReceived(string remoteMessage, string remoteAdress, string remotePort)
         {
-            if (Received != null)
-                Received(remoteMessage, remoteAdress, remotePort);
-        }
-
-        private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
-        {
-            playpage.DisplayMessages("Recieived ["+ remoteAdress + "]:" + remotePort + " " + remoteMessage.Split('\r')[0]);
+           // playpage.DisplayMessages("First connection Recieived ["+ remoteAdress + "]:" + remotePort + " " + remoteMessage.Split('\r')[0]);
             if(remoteMessage.Split('\r')[0].Equals("Accept"))
             {
+                //client.initSender(portTCP2S, remoteAdress);
                 playpage.DisplayMessages("Connecting");
-                client.initSender(portTCP2S, remoteAdress);
             }
-           else  if (remoteMessage.Split('\r')[0].Equals("Cancel"))
+            else if (remoteMessage.Split('\r')[0].Equals("Cancel"))
             {
                 playpage.DisplayMessages("Disconnecting");
             }
@@ -65,6 +61,15 @@ namespace testUniveralApp.Class
             firstConnectionClient.SendRequest(name);
 		}
 
+        //game TCP
+        private void OnClientReceived(string remoteMessage, string remoteAdress, string remotePort)
+        {
+            playpage.OnReceived();
+            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ','\r')[1]));
+           // client.SendRequest(playpage.getPlayerPosition());
+        }
+
+        //other
 		public void Dispose()
 		{
 			if (finderUDP != null)

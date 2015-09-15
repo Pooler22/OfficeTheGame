@@ -1,63 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace testUniveralApp.Class
 {
-    class GameServer
+    internal class GameServer
     {
         public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
+
         public event ChangedEventHandler Received;
+
         public event ChangedEventHandler Received2;
 
-        UDPListener serverUDP;
-        TCPClient firstConnectionClient;
-		TCPClient client;
-		Server server;
-		PlayPage playpage;
-		string portTCP3S;
-        string portTCP2S, portTCP1L;
-        bool serverBussyflag;
+        private UDPListener serverUDP;
+        private TCPClient firstConnectionClient;
+        private TCPClient client;
+        private Server server;
+        private PlayPage playpage;
+        private string portTCP3S, portTCP2S, portTCP1L;
+        private bool serverBussyflag;
+        int xMove = 1;
+        int yMove = 0;
+        int xPos = 50;
+        int yPos = 50;
+        int player1Pos = 50;
+        int player2Pos = 50;
 
-        public GameServer(PlayPage playpage, string name, 
-            string portUDP1, string portUDP2, 
-            string portTCP1L, string portTCP1S, 
-            string portTCP2L, string portTCP2S, 
+        public GameServer(PlayPage playpage, string name,
+            string portUDP1, string portUDP2,
+            string portTCP1L, string portTCP1S,
+            string portTCP2L, string portTCP2S,
             string portTCP3L, string portTCP3S)
-		{
+        {
             serverBussyflag = false;
             this.playpage = playpage;
 
             serverUDP = new UDPListener(playpage, name, portUDP1, portUDP2);
-			serverUDP.Start();
 
             firstConnectionClient = new TCPClient(playpage, name);
             firstConnectionClient.initListener(portTCP3L);
-            firstConnectionClient.Received += OnReceived;
+            firstConnectionClient.Received += firstConnectionReceived;
 
             this.portTCP3S = portTCP3S;
             this.portTCP2S = portTCP2S;
             this.portTCP1L = portTCP1L;
 
             server = new Server(playpage, portTCP2S);
-			client = new TCPClient(playpage, name);
+            client = new TCPClient(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
-			client.initListener(portTCP1S);
-			server.addForPlayer2Listener(portTCP2L);
-			client.initSender(portTCP1L, IPAdress.LocalIPAddress());
-			server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
+            client.initListener(portTCP1S);
+            server.addForPlayer2Listener(portTCP2L);
+            client.initSender(portTCP1L, IPAdress.LocalIPAddress());
+            server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
             server.addForPlayer2Listener(portTCP2L);
         }
 
-        private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
+        // TCP first connection
+        private void firstConnectionReceived(string remoteMessage, string remoteAdress, string remotePort)
         {
-            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ')[1]));
-        }
-
-        private void OnReceived(string remoteMessage, string remoteAdress, string remotePort)
-		{
             if (serverBussyflag)
             {
                 firstConnectionClient.initSender(portTCP3S, remoteAdress);
@@ -68,47 +67,55 @@ namespace testUniveralApp.Class
                 if (firstConnectionClient.name.Equals(remoteMessage.Split('\r')[0]))
                 {
                     playpage.DisplayMessages("Check name: this same names");
-                    firstConnectionClient.initSender(portTCP3S, remoteAdress); // remote port, remote ip 
-                    firstConnectionClient.SendRequest("Cancel this same name"); // message 
-                    serverBussyflag = true;
-                    server.sendToPlayer1("play");
-                    server.sendToPlayer2("play");
-                    // play();
+                    firstConnectionClient.initSender(portTCP3S, remoteAdress);
+                    firstConnectionClient.SendRequest("Cancel this same name");
                 }
                 else
                 {
                     playpage.DisplayMessages("Check name: different name");
                     playpage.AddClient(remoteMessage.Split('\r')[0] + " " + remoteAdress + " " + remotePort);
-                    server.addForPlayer2Sender(portTCP2S, remoteAdress);
                 }
             }
         }
 
-        void play()
+        public void sendToSelectedClient(string message)
+        {
+            if (message.Split(' ')[0].Equals("Accept"))
+            {
+                server.addForPlayer2Sender(portTCP2S, message.Split(' ')[2]);
+                serverBussyflag = true;
+                play();
+            }
+            firstConnectionClient.initSender(portTCP3S, message.Split(' ')[2]);
+            firstConnectionClient.SendRequest(message.Split(' ')[0]);
+        }
+
+        //game TCP
+        public void play()
         {
             Task.Run(
                    async () =>
                    {
-                       await Task.Delay(1000);
-
                        while (true)
                        {
+                           if (xPos >= 100 || xPos <= 0)
                            {
-                               server.sendToPlayer1("play");
-                               server.sendToPlayer2("play");
-                               //DisplayMessages(portUDP1);
-                               //gameServer.sendToServer(playerButton.Margin.ToString());
+                               xMove = -xMove;
                            }
-                           await Task.Delay(1000);
+                           xPos += xMove;
+
+                           sendToPlayer1(xPos + " " + yPos + " " + player2Pos);
+                           sendToPlayer2(xPos + " " + yPos + " " + player1Pos);
+                           await Task.Delay(10);
                        }
                    });
         }
 
-        public void sendIniToPlayer2(string message)
-		{
-            firstConnectionClient.initSender(portTCP3S, message.Split(' ')[2]); // remote port, remote ip 
-            firstConnectionClient.SendRequest(message.Split(' ')[0]); // message 
-		}
+        private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
+        {
+            //playpage.OnReceived();
+            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ','\r')[1]));
+        }
 
         public void sendToPlayer1(string message)
         {
@@ -125,20 +132,21 @@ namespace testUniveralApp.Class
             client.SendRequest(message);
         }
 
+        //other
         public void Dispose()
-		{
-			if (serverUDP != null)
-			{
-				serverUDP.Dispose();
-			}
-			if (client != null)
-			{
-				client.Dispose();
-			}
-			if (server != null)
-			{
-				server.Dispose();
-			}
-		}
+        {
+            if (serverUDP != null)
+            {
+                serverUDP.Dispose();
+            }
+            if (client != null)
+            {
+                client.Dispose();
+            }
+            if (server != null)
+            {
+                server.Dispose();
+            }
+        }
     }
 }
