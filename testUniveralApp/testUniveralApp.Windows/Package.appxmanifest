@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="2d5400b9-2042-4220-b619-ba5bd57607fe" Publisher="CN=Paweł" Version="1.0.0.0" />
+  <Identity Name="2d5400b9-2042-4220-b619-ba5bd57607fe" Publisher="CN=Paweł" Version="0.0.1.2" />
   <Properties>
     <DisplayName>testUniveralApp.Windows</DisplayName>
     <PublisherDisplayName>Paweł</PublisherDisplayName>

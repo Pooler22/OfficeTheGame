@@ -15,22 +15,21 @@
             <RowDefinition Height="4*"/>
         </Grid.RowDefinitions>
         <ProgressBar x:Name="loadingBar" Margin="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" VerticalAlignment="Top" IsIndeterminate="True" IsEnabled="False" Height="10"/>
-        <Grid x:Name="controlPanel" MaxHeight="56" Grid.Row="1">
+        <Grid x:Name="controlPanel" Grid.Column="3" MaxHeight="56" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="quitButton" Content="Quit" Click="Button_Click_Back_To_MainPage" HorizontalAlignment="Stretch" Padding="0" VerticalAlignment="Stretch" Margin="0"/>
         </Grid>
-        <Grid Grid.Row="2">
-            <Canvas x:Name="playPanel" Margin="0" ScrollViewer.VerticalScrollBarVisibility="Disabled" Loaded="intCanvansGame">
-                <Canvas.Background>
-                    <SolidColorBrush Color="White" Opacity="0.2"/>
-                </Canvas.Background>
-                <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Width="200" Height="50" ScrollViewer.VerticalScrollBarVisibility="Disabled" Padding="0" />
-                <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="30" RenderTransformOrigin="0.5,0.5" Width="30" ScrollViewer.VerticalScrollBarVisibility="Disabled" VerticalAlignment="Center" HorizontalAlignment="Center" Canvas.Top="-15" Canvas.Left="-15"/>
-                <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Center" HorizontalAlignment="Center" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer" Padding="0" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
-            </Canvas>
-        </Grid>
+        <Canvas x:Name="playPanel" UseLayoutRounding="True" Margin="0" Grid.Row="2" ScrollViewer.VerticalScrollBarVisibility="Disabled" Loaded="setStartPlayersPositions">
+            <Button x:Name="enemyButton" Content="enemyButton" VerticalAlignment="Top" HorizontalAlignment="Stretch" VerticalContentAlignment="Top" Margin="0" Width="200" Height="50" />
+            <Ellipse x:Name="ball" Fill="#FFF4F4F5" Stroke="Black" Margin="0" Height="30" RenderTransformOrigin="0.5,0.5" Width="30" Canvas.Left="4" Canvas.Top="115">
+                <Ellipse.RenderTransform>
+                    <CompositeTransform TranslateX="6"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Button x:Name="playerButton" Content="playerButton" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" AllowDrop="True" Height="50" UseLayoutRounding="True" Width="200" RenderTransformOrigin="0.5,0.5" PointerMoved="playerButtonMovePointer"/>
+        </Canvas>
         <Grid x:Name="massage" Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
