@@ -17,12 +17,12 @@ namespace testUniveralApp.Class
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;
         private bool serverBussyflag;
-        int xMove = 1;
-        int yMove = 0;
-        int xPos = 50;
-        int yPos = 50;
-        int player1Pos = 50;
-        int player2Pos = 50;
+        private int xMove = 1;
+        private int yMove = 0;
+        private int xPos = 50;
+        private int yPos = 50;
+        private int player1Pos = 50;
+        private int player2Pos = 50;
 
         public GameServer(PlayPage playpage, string name,
             string portUDP1, string portUDP2,
@@ -44,6 +44,9 @@ namespace testUniveralApp.Class
             this.portTCP1L = portTCP1L;
 
             server = new Server(playpage, portTCP2S);
+            server.Received1 += onServerRecieved1;
+            server.Received2 += onServerRecieved2;
+
             client = new TCPClient(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
@@ -76,6 +79,16 @@ namespace testUniveralApp.Class
                     playpage.AddClient(remoteMessage.Split('\r')[0] + " " + remoteAdress + " " + remotePort);
                 }
             }
+        }
+
+        private void onServerRecieved1(string message)
+        {
+            player1Pos = int.Parse(message.Split(' ','\r')[0]);
+        }
+
+        private void onServerRecieved2(string message)
+        {
+            player2Pos = int.Parse(message.Split(' ', '\r')[0]);
         }
 
         public void sendToSelectedClient(string message)
@@ -114,7 +127,7 @@ namespace testUniveralApp.Class
         private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
         {
             //playpage.OnReceived();
-            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ','\r')[1]));
+            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ', '\r')[1]), float.Parse(remoteMessage.Split(' ', '\r')[2]));
         }
 
         public void sendToPlayer1(string message)

@@ -139,7 +139,7 @@ namespace testUniveralApp
 		}
 
         //set positions
-        public async void setBallPosition(float x, float y)
+        public async void setBallPosition(float x, float y, float player)
         {
             await Dispatcher.RunIdleAsync(
                 (unused) =>
@@ -149,6 +149,11 @@ namespace testUniveralApp
                         (float)((playPanel.ActualHeight * y) / 100),
                         ball.Margin.Right,
                         ball.Margin.Bottom);
+                    enemyButton.Margin = new Thickness(
+                        (float)((playPanel.ActualWidth * player) / 100),
+                        enemyButton.Margin.Top,
+                        enemyButton.Margin.Right,
+                        enemyButton.Margin.Bottom);
                 });
         }
 
@@ -158,7 +163,7 @@ namespace testUniveralApp
             await Dispatcher.RunIdleAsync(
                 (unused) =>
                 {
-                    output = (playerButton.Margin.Left.ToString() + " " + playerButton.Margin.Top.ToString());
+                    output = (playPanel.ActualWidth / playerButton.Margin.Left).ToString();
                 });
         }
 
