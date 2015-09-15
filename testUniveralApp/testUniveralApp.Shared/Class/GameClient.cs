@@ -42,7 +42,7 @@
             // playpage.DisplayMessages("First connection Recieived ["+ remoteAdress + "]:" + remotePort + " " + remoteMessage.Split('\r')[0]);
             if (remoteMessage.Split('\r')[0].Equals("Accept"))
             {
-                //client.initSender(portTCP2S, remoteAdress);
+                //`client.initSender(portTCP2S, remoteAdress);
                 playpage.DisplayMessages("Connecting");
             }
             else if (remoteMessage.Split('\r')[0].Equals("Cancel"))
@@ -61,8 +61,8 @@
         private void OnClientReceived(string remoteMessage, string remoteAdress, string remotePort)
         {
             playpage.OnReceived();
-            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ', '\r')[1]), float.Parse(remoteMessage.Split(' ')[2]));
-            // client.SendRequest(playpage.getPlayerPosition());
+            playpage.setBallPosition(int.Parse(remoteMessage.Split(' ')[0]), int.Parse(remoteMessage.Split(' ')[1]), int.Parse(remoteMessage.Split(' ', '\r')[2]));
+            client.SendRequest(playpage.getPlayerPosition());
         }
 
         //other
@@ -72,10 +72,14 @@
             {
                 finderUDP.Dispose();
             }
-            //if (client != null)
-            //{
-            //	client.Dispose();
-            //}
+            if (client != null)
+            {
+                client.Dispose();
+            }
+            if (firstConnectionClient != null)
+            {
+                firstConnectionClient.Dispose();
+            }
         }
     }
 }

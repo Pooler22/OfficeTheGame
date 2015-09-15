@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace testUniveralApp.Class
 {
@@ -18,7 +19,7 @@ namespace testUniveralApp.Class
         private string portTCP3S, portTCP2S, portTCP1L;
         private bool serverBussyflag;
         private int xMove = 1;
-        private int yMove = 0;
+        private int yMove = 1;
         private int xPos = 50;
         private int yPos = 50;
         private int player1Pos = 50;
@@ -111,23 +112,44 @@ namespace testUniveralApp.Class
                    {
                        while (true)
                        {
-                           if (xPos >= 100 || xPos <= 0)
+                           //int tmpPlayer2Pos = mathFunction(player2Pos);
+                           if (yPos >= 100 || yPos <= 0)
                            {
-                               xMove = -xMove;
+                               yMove = -yMove;
                            }
-                           xPos += xMove;
+                           yPos += yMove;
+                           if(yPos < 3 || yPos > 97)
+                           {
+                               xPos = yPos = 50;
+                           }
+                           if((yPos < 5 )
+                           || (yPos > 95))
+                               yMove = -yMove;
 
-                           sendToPlayer1(xPos + " " + yPos + " " + player2Pos);
-                           sendToPlayer2(xPos + " " + yPos + " " + player1Pos);
-                           await Task.Delay(10);
+                           sendToPlayer1(xPos + " " + yPos + " " + mathFunction(player2Pos));
+                           sendToPlayer2(mathFunction(xPos) + " " + mathFunction(yPos) + " " + mathFunction(player1Pos));
+                           await Task.Delay(100);
                        }
                    });
         }
 
+        private int mathFunction(int number)
+        {
+            if(number > 50)
+            {
+                return 50 - (number - 50);
+            }
+            else
+            {
+                return (50 - number) + 50;
+            }
+        }
+
         private void OnReceived1(string remoteMessage, string remoteAdress, string remotePort)
         {
-            //playpage.OnReceived();
-            playpage.setBallPosition(float.Parse(remoteMessage.Split(' ')[0]), float.Parse(remoteMessage.Split(' ', '\r')[1]), float.Parse(remoteMessage.Split(' ', '\r')[2]));
+            playpage.OnReceived();
+            playpage.setBallPosition(int.Parse(remoteMessage.Split(' ')[0]), int.Parse(remoteMessage.Split(' ')[1]), int.Parse(remoteMessage.Split(' ', '\r')[2]));
+            client.SendRequest(playpage.getPlayerPosition());
         }
 
         public void sendToPlayer1(string message)
@@ -159,6 +181,10 @@ namespace testUniveralApp.Class
             if (server != null)
             {
                 server.Dispose();
+            }
+            if (firstConnectionClient != null)
+            {
+                firstConnectionClient.Dispose();
             }
         }
     }
