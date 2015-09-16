@@ -11,20 +11,14 @@ namespace testUniveralApp.Class
         public event ChangedEventHandler Received2;
 
         private UDPListener serverUDP;
-        private TCPClient firstConnectionClient;
-        private TCPClient client;
+        private TCPClientRemote firstConnectionClient;
+        private TCPClientRemote client;
         TCPClientLocal clientLocal;
         private Server server;
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;
         private bool serverBussyflag;
         private GameData gameData;
-        private int xMove = 1;
-        private int yMove = 1;
-        private int xPos = 50;
-        private int yPos = 50;
-        private int player1Pos = 50;
-        private int player2Pos = 50;
 
         public GameServer(PlayPage playpage, string name,
             string portUDP1, string portUDP2,
@@ -38,7 +32,7 @@ namespace testUniveralApp.Class
 
             serverUDP = new UDPListener(playpage, name, portUDP1, portUDP2);
 
-            firstConnectionClient = new TCPClient(playpage, name);
+            firstConnectionClient = new TCPClientRemote(playpage, name);
             firstConnectionClient.initListener(portTCP3L);
             firstConnectionClient.Received += firstConnectionReceived;
 
@@ -53,7 +47,7 @@ namespace testUniveralApp.Class
             clientLocal = new TCPClientLocal(playpage, name);
             clientLocal.Received += OnReceived1;
 
-            client = new TCPClient(playpage, name);
+            client = new TCPClientRemote(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
             clientLocal.initListener(portTCP1S);
@@ -110,21 +104,21 @@ namespace testUniveralApp.Class
                        while (true)
                        {
                            //int tmpPlayer2Pos = mathFunction(player2Pos);
-                           if (yPos >= 100 || yPos <= 0)
+                           if (gameData.yPos >= 100 || gameData.yPos <= 0)
                            {
-                               yMove = -yMove;
+                               gameData.yMove = -gameData.yMove;
                            }
-                           yPos += yMove;
-                           if (yPos < 3 || yPos > 97)
+                           gameData.yPos += gameData.yMove;
+                           if (gameData.yPos < 3 || gameData.yPos > 97)
                            {
-                               xPos = yPos = 50;
+                               gameData.xPos = gameData.yPos = 50;
                            }
-                           if (((yPos < 5) && ((player1Pos - xPos) < 5)
-                           || (yPos > 95) && ((player1Pos) < 5)))
-                               yMove = -yMove;
+                           if (((gameData.yPos < 5) && ((gameData.player1Pos - gameData.xPos) < 5)
+                           || (gameData.yPos > 95) && ((gameData.player1Pos) < 5)))
+                               gameData.yMove = -gameData.yMove;
 
-                           sendToPlayer1(xPos + " " + yPos + " " + mathFunction(player2Pos));
-                           sendToPlayer2(mathFunction(xPos) + " " + mathFunction(yPos) + " " + mathFunction(player1Pos));
+                           sendToPlayer1(gameData.xPos + " " + gameData.yPos + " " + mathFunction(gameData.player2Pos));
+                           sendToPlayer2(mathFunction(gameData.xPos) + " " + mathFunction(gameData.yPos) + " " + mathFunction(gameData.player1Pos));
                            await Task.Delay(100);
                        }
                    });
@@ -132,12 +126,12 @@ namespace testUniveralApp.Class
 
         private void onServerRecieved1(string message)
         {
-            player1Pos = int.Parse(message.Split(' ', '\r')[0]);
+            gameData.player1Pos = int.Parse(message.Split(' ', '\r')[0]);
         }
 
         private void onServerRecieved2(string message)
         {
-            player2Pos = int.Parse(message.Split(' ', '\r')[0]);
+            gameData.player2Pos = int.Parse(message.Split(' ', '\r')[0]);
         }
 
         private int mathFunction(int number)

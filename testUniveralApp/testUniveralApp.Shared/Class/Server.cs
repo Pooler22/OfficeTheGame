@@ -5,13 +5,13 @@
         public delegate void ChangedEventHandler(string messag);
         public event ChangedEventHandler Received1;
         public event ChangedEventHandler Received2;
-        private TCPClient Client1, Client2;
+        private TCPClientRemote Client1, Client2;
         private PlayPage playPage;
         private string portSender;
         public Server(PlayPage playPage, string portSender, string name = "Server")
         {
-            this.Client1 = new TCPClient(playPage, name);
-            this.Client2 = new TCPClient(playPage, name);
+            this.Client1 = new TCPClientRemote(playPage, name);
+            this.Client2 = new TCPClientRemote(playPage, name);
             this.playPage = playPage;
             this.portSender = portSender;
             Client1.Received += OnReceived1;
