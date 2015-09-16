@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace testUniveralApp.Class
 {
@@ -14,10 +13,12 @@ namespace testUniveralApp.Class
         private UDPListener serverUDP;
         private TCPClient firstConnectionClient;
         private TCPClient client;
+        TCPClientLocal clientLocal;
         private Server server;
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;
         private bool serverBussyflag;
+        private GameData gameData;
         private int xMove = 1;
         private int yMove = 1;
         private int xPos = 50;
@@ -33,6 +34,7 @@ namespace testUniveralApp.Class
         {
             serverBussyflag = false;
             this.playpage = playpage;
+            gameData = new GameData();
 
             serverUDP = new UDPListener(playpage, name, portUDP1, portUDP2);
 
@@ -48,11 +50,16 @@ namespace testUniveralApp.Class
             server.Received1 += onServerRecieved1;
             server.Received2 += onServerRecieved2;
 
+            clientLocal = new TCPClientLocal(playpage, name);
+            clientLocal.Received += OnReceived1;
+
             client = new TCPClient(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
+            clientLocal.initListener(portTCP1S);
             client.initListener(portTCP1S);
             server.addForPlayer2Listener(portTCP2L);
+            clientLocal.initSender(portTCP1L, IPAdress.LocalIPAddress());
             client.initSender(portTCP1L, IPAdress.LocalIPAddress());
             server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
             server.addForPlayer2Listener(portTCP2L);
@@ -82,16 +89,6 @@ namespace testUniveralApp.Class
             }
         }
 
-        private void onServerRecieved1(string message)
-        {
-            player1Pos = int.Parse(message.Split(' ','\r')[0]);
-        }
-
-        private void onServerRecieved2(string message)
-        {
-            player2Pos = int.Parse(message.Split(' ', '\r')[0]);
-        }
-
         public void sendToSelectedClient(string message)
         {
             if (message.Split(' ')[0].Equals("Accept"))
@@ -118,12 +115,12 @@ namespace testUniveralApp.Class
                                yMove = -yMove;
                            }
                            yPos += yMove;
-                           if(yPos < 3 || yPos > 97)
+                           if (yPos < 3 || yPos > 97)
                            {
                                xPos = yPos = 50;
                            }
-                           if((yPos < 5 )
-                           || (yPos > 95))
+                           if (((yPos < 5) && ((player1Pos - xPos) < 5)
+                           || (yPos > 95) && ((player1Pos) < 5)))
                                yMove = -yMove;
 
                            sendToPlayer1(xPos + " " + yPos + " " + mathFunction(player2Pos));
@@ -133,9 +130,19 @@ namespace testUniveralApp.Class
                    });
         }
 
+        private void onServerRecieved1(string message)
+        {
+            player1Pos = int.Parse(message.Split(' ', '\r')[0]);
+        }
+
+        private void onServerRecieved2(string message)
+        {
+            player2Pos = int.Parse(message.Split(' ', '\r')[0]);
+        }
+
         private int mathFunction(int number)
         {
-            if(number > 50)
+            if (number > 50)
             {
                 return 50 - (number - 50);
             }
@@ -150,6 +157,7 @@ namespace testUniveralApp.Class
             playpage.OnReceived();
             playpage.setBallPosition(int.Parse(remoteMessage.Split(' ')[0]), int.Parse(remoteMessage.Split(' ')[1]), int.Parse(remoteMessage.Split(' ', '\r')[2]));
             client.SendRequest(playpage.getPlayerPosition());
+            clientLocal.SendRequest(playpage.getPlayerPosition());
         }
 
         public void sendToPlayer1(string message)
@@ -165,6 +173,7 @@ namespace testUniveralApp.Class
         public void sendToServer(string message)
         {
             client.SendRequest(message);
+            clientLocal.SendRequest(message);
         }
 
         //other
@@ -177,6 +186,10 @@ namespace testUniveralApp.Class
             if (client != null)
             {
                 client.Dispose();
+            }
+            if (clientLocal != null)
+            {
+                clientLocal.Dispose();
             }
             if (server != null)
             {

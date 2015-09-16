@@ -21,6 +21,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Class\IPAdress.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\Server.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\TCPClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\TCPClientLocal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Class\TCPConection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\TCPListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\UDPListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Class\UDPListenerFinder.cs" />
