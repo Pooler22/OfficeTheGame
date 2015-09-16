@@ -27,11 +27,13 @@
             finderUDP = new UDPListenerFinder(playpage, name, portUDP1, portUDP2);
             finderUDP.SendDiscovery();
 
-            firstConnectionClient = new TCPClientRemote(playpage, name);
+            firstConnectionClient = TCPClientRemote.Instance;
+            firstConnectionClient.initTCPClient(playpage, name);
             firstConnectionClient.initListener(portTCP3L);
             firstConnectionClient.Received += firstConnectionReceived;
 
-            client = new TCPClientRemote(playpage, name);
+            client = new TCPClientRemote();
+            client.initTCPClient(playpage, name);
             client.initListener(portTCP2L);
             client.Received += OnClientReceived;
         }

@@ -12,8 +12,7 @@ namespace testUniveralApp.Class
 
         private UDPListener serverUDP;
         private TCPClientRemote firstConnectionClient;
-        private TCPClientRemote client;
-        private TCPClientLocal clientLocal;
+        private TCPClientLocal client;
         private Server server;
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;
@@ -32,7 +31,8 @@ namespace testUniveralApp.Class
 
             serverUDP = new UDPListener(playpage, name, portUDP1, portUDP2);
 
-            firstConnectionClient = new TCPClientRemote(playpage, name);
+            firstConnectionClient = TCPClientRemote.Instance;
+            firstConnectionClient.initTCPClient(playpage, name);
             firstConnectionClient.initListener(portTCP3L);
             firstConnectionClient.Received += firstConnectionReceived;
 
@@ -44,16 +44,13 @@ namespace testUniveralApp.Class
             server.Received1 += onServerRecieved1;
             server.Received2 += onServerRecieved2;
 
-            clientLocal = new TCPClientLocal(playpage, name);
-            clientLocal.Received += OnReceived1;
 
-            client = new TCPClientRemote(playpage, name);
+            client = TCPClientLocal.Instance;
+            client.initTCPClient(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
-            clientLocal.initListener(portTCP1S);
             client.initListener(portTCP1S);
             server.addForPlayer2Listener(portTCP2L);
-            clientLocal.initSender(portTCP1L, IPAdress.LocalIPAddress());
             client.initSender(portTCP1L, IPAdress.LocalIPAddress());
             server.addForPlayer1Sender(portTCP1S, IPAdress.LocalIPAddress());
             server.addForPlayer2Listener(portTCP2L);
@@ -151,7 +148,6 @@ namespace testUniveralApp.Class
             playpage.OnReceived();
             playpage.setBallPosition(int.Parse(remoteMessage.Split(' ')[0]), int.Parse(remoteMessage.Split(' ')[1]), int.Parse(remoteMessage.Split(' ', '\r')[2]));
             client.SendRequest(playpage.getPlayerPosition());
-            clientLocal.SendRequest(playpage.getPlayerPosition());
         }
 
         public void sendToPlayer1(string message)
@@ -167,7 +163,6 @@ namespace testUniveralApp.Class
         public void sendToServer(string message)
         {
             client.SendRequest(message);
-            clientLocal.SendRequest(message);
         }
 
         //other
@@ -180,10 +175,6 @@ namespace testUniveralApp.Class
             if (client != null)
             {
                 client.Dispose();
-            }
-            if (clientLocal != null)
-            {
-                clientLocal.Dispose();
             }
             if (server != null)
             {

@@ -10,14 +10,17 @@ namespace testUniveralApp
 
         public event ChangedEventHandler Received2;
 
-        private TCPClient Client1, Client2;
+        private TCPClientLocal Client1;
+         private TCPClientRemote Client2;
         private PlayPage playPage;
         private string portSender;
 
         public Server(PlayPage playPage, string portSender, string name = "Server")
         {
-            this.Client1 = new TCPClientLocal(playPage, name);
-            this.Client2 = new TCPClientRemote(playPage, name);
+            this.Client1 = TCPClientLocal.Instance;
+            Client1.initTCPClient(playPage, name);
+            this.Client2 = TCPClientRemote.Instance;
+            Client2.initTCPClient(playPage, name);
             this.playPage = playPage;
             this.portSender = portSender;
             Client1.Received += OnReceived1;
