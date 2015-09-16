@@ -12,7 +12,7 @@ namespace testUniveralApp.Class
 
         private UDPListener serverUDP;
         private TCPClientRemote firstConnectionClient;
-        private TCPClientLocal client;
+        private TCPClientRemote client;
         private Server server;
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;
@@ -45,7 +45,7 @@ namespace testUniveralApp.Class
             server.Received2 += onServerRecieved2;
 
 
-            client = TCPClientLocal.Instance;
+            client = TCPClientRemote.Instance;
             client.initTCPClient(playpage, name);
             client.Received += OnReceived1;
             server.addForPlayer1Listener(portTCP1L);
@@ -110,13 +110,13 @@ namespace testUniveralApp.Class
                            {
                                gameData.xPos = gameData.yPos = 50;
                            }
-                           if (((gameData.yPos < 5) && ((gameData.player1Pos - gameData.xPos) < 5)
-                           || (gameData.yPos > 95) && ((gameData.player1Pos) < 5)))
+                           if (((gameData.yPos < 5))
+                           || (gameData.yPos > 95))
                                gameData.yMove = -gameData.yMove;
 
                            sendToPlayer1(gameData.xPos + " " + gameData.yPos + " " + mathFunction(gameData.player2Pos));
                            sendToPlayer2(mathFunction(gameData.xPos) + " " + mathFunction(gameData.yPos) + " " + mathFunction(gameData.player1Pos));
-                           await Task.Delay(100);
+                           await Task.Delay(50);
                        }
                    });
         }
