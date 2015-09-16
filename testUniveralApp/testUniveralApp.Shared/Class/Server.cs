@@ -1,16 +1,22 @@
-﻿namespace testUniveralApp
+﻿using testUniveralApp.Class;
+
+namespace testUniveralApp
 {
     public partial class Server
     {
         public delegate void ChangedEventHandler(string messag);
+
         public event ChangedEventHandler Received1;
+
         public event ChangedEventHandler Received2;
-        private TCPClientRemote Client1, Client2;
+
+        private TCPClient Client1, Client2;
         private PlayPage playPage;
         private string portSender;
+
         public Server(PlayPage playPage, string portSender, string name = "Server")
         {
-            this.Client1 = new TCPClientRemote(playPage, name);
+            this.Client1 = new TCPClientLocal(playPage, name);
             this.Client2 = new TCPClientRemote(playPage, name);
             this.playPage = playPage;
             this.portSender = portSender;
@@ -61,6 +67,7 @@
             if (Received1 != null)
                 Received1(message);
         }
+
         private void OnReceived2(string message, string remoteAdress, string remotePort)
         {
             if (Received2 != null)

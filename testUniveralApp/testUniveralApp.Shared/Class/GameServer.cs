@@ -13,7 +13,7 @@ namespace testUniveralApp.Class
         private UDPListener serverUDP;
         private TCPClientRemote firstConnectionClient;
         private TCPClientRemote client;
-        TCPClientLocal clientLocal;
+        private TCPClientLocal clientLocal;
         private Server server;
         private PlayPage playpage;
         private string portTCP3S, portTCP2S, portTCP1L;

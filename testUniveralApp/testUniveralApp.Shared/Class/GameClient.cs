@@ -60,8 +60,8 @@
         {
             playpage.OnReceived();
             playpage.setBallPosition(
-                int.Parse(remoteMessage.Split(' ')[0]), 
-                int.Parse(remoteMessage.Split(' ')[1]), 
+                int.Parse(remoteMessage.Split(' ')[0]),
+                int.Parse(remoteMessage.Split(' ')[1]),
                 int.Parse(remoteMessage.Split(' ', '\r')[2]));
             client.SendRequest(playpage.getPlayerPosition());
         }

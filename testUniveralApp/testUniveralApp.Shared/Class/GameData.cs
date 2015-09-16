@@ -1,7 +1,7 @@
 ﻿namespace testUniveralApp
 {
-	public class GameData
-	{
+    public class GameData
+    {
         public int xMove { get; set; }
         public int yMove { get; set; }
         public int xPos { get; set; }
@@ -18,5 +18,5 @@
             player1Pos = 50;
             player2Pos = 50;
         }
-	}
+    }
 }

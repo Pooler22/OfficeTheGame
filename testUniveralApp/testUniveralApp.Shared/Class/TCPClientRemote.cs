@@ -13,14 +13,19 @@ namespace testUniveralApp
 
         public event ChangedEventHandler Received;
 
-        public string name { get; set; }
-        private StreamSocketListener listener = null;
-        private StreamSocket sender = null;
+        private string name;
         private PlayPage playPage;
 
-        public TCPClientRemote(PlayPage playPage, string name)
+        private StreamSocketListener listener = null;
+        private StreamSocket sender = null;
+
+        public TCPClientRemote()
         {
-            this.playPage = playPage;
+        }
+
+        public void initTCPClient(PlayPage playpage, string name)
+        {
+            this.playPage = playpage;
             this.name = name;
         }
 

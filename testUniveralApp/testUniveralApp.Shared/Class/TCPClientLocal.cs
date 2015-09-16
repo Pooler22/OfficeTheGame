@@ -1,30 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Threading.Tasks;
 
 namespace testUniveralApp.Class
 {
-    class TCPClientLocal : TCPClient
+    internal class TCPClientLocal : TCPClient
     {
-        private string name;
-        private PlayPage playpage;
+        public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
 
-        public TCPClientLocal(PlayPage playpage, string name)
+        public event ChangedEventHandler Received;
+
+        private static TCPClientLocal instance;
+
+        public TCPClientLocal()
         {
-            this.playpage = playpage;
+        }
+
+        public void initTCPClient(PlayPage playpage, string name)
+        {
+            this.playPage = playpage;
             this.name = name;
         }
 
-        public Action<string, string, string> Received { get; internal set; }
+        private string name;
+        private PlayPage playPage;
+
+        public static TCPClientLocal Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new TCPClientLocal();
+                }
+                return instance;
+            }
+        }
 
         public override void Dispose()
         {
-           // throw new NotImplementedException();
+            // throw new NotImplementedException();
         }
 
         public override void initListener(string portListener)
         {
-           // throw new NotImplementedException();
+            Task.Run(
+                async () =>
+                {
+                    await Listener(portListener);
+                })
+                .Wait();
+        }
+
+        private async Task Listener(string portListener)
+        {
+            playPage.DisplayMessages(name + " :TCP LOCAL Listener [local]:" + portListener + " started");
         }
 
         public override void initSender(string portSender, string remoteAdress)
@@ -36,6 +64,5 @@ namespace testUniveralApp.Class
         {
             //throw new NotImplementedException();
         }
-
     }
 }

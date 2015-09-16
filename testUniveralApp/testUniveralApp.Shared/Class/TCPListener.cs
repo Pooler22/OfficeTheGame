@@ -1,178 +1,177 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Networking;
-using Windows.Networking.Connectivity;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
 namespace testUniveralApp
 {
-	class TCPListener
-	{
-		public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
-		public event ChangedEventHandler Received;
+    internal class TCPListener
+    {
+        public delegate void ChangedEventHandler(string e, string remoteAdress, string remotePort);
 
-		public string name { get; set; }
-		StreamSocketListener listener = null;
-		StreamSocket sender = null;
-		PlayPage playPage;
+        public event ChangedEventHandler Received;
 
-		public TCPListener(PlayPage playPage, string name)
-		{
-			this.playPage = playPage;
-			this.name = name;
-		}
+        public string name { get; set; }
+        private StreamSocketListener listener = null;
+        private StreamSocket sender = null;
+        private PlayPage playPage;
 
-		//listener
-		public void initListener(string portListener)
-		{
-			Task.Run(
-				async () =>
-				{
-					await Listener(portListener);
-				})
-				.Wait();
-		}
+        public TCPListener(PlayPage playPage, string name)
+        {
+            this.playPage = playPage;
+            this.name = name;
+        }
 
-		private async Task Listener(string portListener)
-		{
-			try
-			{
-				if (listener == null)
-				{
-					listener = new StreamSocketListener();
-					listener.ConnectionReceived += OnConnectionReceived;
-					await listener.BindServiceNameAsync(portListener.ToString());
-					playPage.DisplayMessages(name + " :LISTENER: TCP Listener [local]:" + portListener + " started");
-				}
-			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages(name + " :ERROR: LISTENER: TCP Listener [local]:" + portListener + " started\n" + ex.ToString());
-			}
-		}
+        //listener
+        public void initListener(string portListener)
+        {
+            Task.Run(
+                async () =>
+                {
+                    await Listener(portListener);
+                })
+                .Wait();
+        }
 
-		private async void OnConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
-		{
-			try
-			{
-				playPage.DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
-				while (true)
-				{
-					string request = await Read(args.Socket.InputStream);
+        private async Task Listener(string portListener)
+        {
+            try
+            {
+                if (listener == null)
+                {
+                    listener = new StreamSocketListener();
+                    listener.ConnectionReceived += OnConnectionReceived;
+                    await listener.BindServiceNameAsync(portListener.ToString());
+                    playPage.DisplayMessages(name + " :LISTENER: TCP Listener [local]:" + portListener + " started");
+                }
+            }
+            catch (Exception ex)
+            {
+                playPage.DisplayMessages(name + " :ERROR: LISTENER: TCP Listener [local]:" + portListener + " started\n" + ex.ToString());
+            }
+        }
 
-					if (String.IsNullOrEmpty(request))
-					{
-						return;
-					}
-					OnReceived(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
-					playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + request);
-					//string response = "Respone.\r\n";
-					//await Send(args.Socket.OutputStream, response);
-				}
-			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + ex.ToString());
-			}
-		}
+        private async void OnConnectionReceived(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
+        {
+            try
+            {
+                playPage.DisplayMessages(name + " " + args.Socket.Information.RemoteAddress.DisplayName + " connected.");
+                while (true)
+                {
+                    string request = await Read(args.Socket.InputStream);
 
-		protected virtual void OnReceived(string request, string remoteAdress, string remotePort)
-		{
-			if (Received != null)
-				Received(request, remoteAdress, remotePort);
-		}
+                    if (String.IsNullOrEmpty(request))
+                    {
+                        return;
+                    }
+                    OnReceived(request, args.Socket.Information.RemoteAddress.DisplayName, args.Socket.Information.RemotePort);
+                    playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + request);
+                    //string response = "Respone.\r\n";
+                    //await Send(args.Socket.OutputStream, response);
+                }
+            }
+            catch (Exception ex)
+            {
+                playPage.DisplayMessages(name + " :LISTENER: Recived TCP " + ex.ToString());
+            }
+        }
 
-		private void DisposeListener()
-		{
-			if (listener != null)
-			{
-				listener.Dispose();
-				listener = null;
-			}
-		}
+        protected virtual void OnReceived(string request, string remoteAdress, string remotePort)
+        {
+            if (Received != null)
+                Received(request, remoteAdress, remotePort);
+        }
 
-		private async Task<string> Read(IInputStream inputStream)
-		{
-			DataReader reader = new DataReader(inputStream);
-			reader.InputStreamOptions = InputStreamOptions.Partial;
-			string message = "";
+        private void DisposeListener()
+        {
+            if (listener != null)
+            {
+                listener.Dispose();
+                listener = null;
+            }
+        }
 
-			while (!message.EndsWith("\r\n"))
-			{
-				uint bytesRead = await reader.LoadAsync(16);
-				if (bytesRead == 0)
-				{
-					playPage.DisplayMessages(name + " :LISTENER:  The connection was closed by remote host.");
-					break;
-				}
-				message += reader.ReadString(bytesRead);
-			}
-			reader.DetachStream();
-			return message;
-		}
+        private async Task<string> Read(IInputStream inputStream)
+        {
+            DataReader reader = new DataReader(inputStream);
+            reader.InputStreamOptions = InputStreamOptions.Partial;
+            string message = "";
 
-		private async Task Send(IOutputStream outputStream, string message)
-		{
-			DataWriter writer = new DataWriter(outputStream);
-			uint messageLength = writer.MeasureString(message);
-			writer.WriteString(message);
-			uint bytesWritten = await writer.StoreAsync();
-			writer.DetachStream();
-		}
+            while (!message.EndsWith("\r\n"))
+            {
+                uint bytesRead = await reader.LoadAsync(16);
+                if (bytesRead == 0)
+                {
+                    playPage.DisplayMessages(name + " :LISTENER:  The connection was closed by remote host.");
+                    break;
+                }
+                message += reader.ReadString(bytesRead);
+            }
+            reader.DetachStream();
+            return message;
+        }
 
-		//sender
-		public void initSender(string portSender, string remoteAdress)
-		{
-			Task.Run(
-				async () =>
-				{
-					await Sender(portSender, remoteAdress);
-				})
-				.Wait();
-		}
+        private async Task Send(IOutputStream outputStream, string message)
+        {
+            DataWriter writer = new DataWriter(outputStream);
+            uint messageLength = writer.MeasureString(message);
+            writer.WriteString(message);
+            uint bytesWritten = await writer.StoreAsync();
+            writer.DetachStream();
+        }
 
-		private async Task Sender(string portSender, string remoteAdress)
-		{
-			try
-			{
-				sender = new StreamSocket();
-				await sender.ConnectAsync(new HostName(remoteAdress), portSender);
-				playPage.DisplayMessages(name + " :TPC Sender[" + remoteAdress + ":" + portSender + "] started");
-			}
-			catch (Exception ex)
-			{
-				playPage.DisplayMessages(name + " :ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started\n" + ex.ToString());
-			}
-		}
+        //sender
+        public void initSender(string portSender, string remoteAdress)
+        {
+            Task.Run(
+                async () =>
+                {
+                    await Sender(portSender, remoteAdress);
+                })
+                .Wait();
+        }
 
-		public async void SendRequest(string request)
-		{
-			if (sender != null)
-			{
-				request += "\r\n";
-				await Send(sender.OutputStream, request);
-				//string response = await Read(sender.InputStream);
-				//DisplayMessages(response);
-			}
-		}
+        private async Task Sender(string portSender, string remoteAdress)
+        {
+            try
+            {
+                sender = new StreamSocket();
+                await sender.ConnectAsync(new HostName(remoteAdress), portSender);
+                playPage.DisplayMessages(name + " :TPC Sender[" + remoteAdress + ":" + portSender + "] started");
+            }
+            catch (Exception ex)
+            {
+                playPage.DisplayMessages(name + " :ERROR: TCP Sender[" + remoteAdress + ":" + portSender + "] started\n" + ex.ToString());
+            }
+        }
 
-		private void DisconnectSender()
-		{
-			if (sender != null)
-			{
-				sender.Dispose();
-				sender = null;
-			}
-		}
+        public async void SendRequest(string request)
+        {
+            if (sender != null)
+            {
+                request += "\r\n";
+                await Send(sender.OutputStream, request);
+                //string response = await Read(sender.InputStream);
+                //DisplayMessages(response);
+            }
+        }
 
-		internal void Dispose()
-		{
-			if (listener != null)
-				listener.Dispose();
-			if (sender != null)
-				sender.Dispose();
-		}
-	}
+        private void DisconnectSender()
+        {
+            if (sender != null)
+            {
+                sender.Dispose();
+                sender = null;
+            }
+        }
+
+        internal void Dispose()
+        {
+            if (listener != null)
+                listener.Dispose();
+            if (sender != null)
+                sender.Dispose();
+        }
+    }
 }
