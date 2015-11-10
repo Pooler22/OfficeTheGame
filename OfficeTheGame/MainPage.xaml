@@ -6,18 +6,42 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <TextBlock x:Name="nameTextBlock" Text="" Width="200" Height="50" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="24" TextAlignment="Center"/>
-        <Grid Margin="0" Grid.Row="3" Grid.RowSpan="10" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Button x:Name="startButton" Content="Start" Width="200" Height="50" Click="Button_Click_Start" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0"/>
-            <Button x:Name="optionsButton" Content="Options" Width="200" Height="50" Click="Button_Click_Options" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0" Grid.Row="1"/>
-            <Button x:Name="exitButton" Content="Exit" Width="200" Height="50" Click="Button_Click_Exit" HorizontalAlignment="Center" Padding="0" FontSize="24" Margin="0" Grid.Row="2"/>
-        </Grid>
+     
+    <Grid>
+        <SplitView 
+            Name="HamburgerSplitView" 
+            IsPaneOpen="False" 
+            CompactPaneLength="50" 
+            OpenPaneLength="400"
+            DisplayMode="CompactOverlay">
+            <SplitView.Pane>
+                <Grid
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Left">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="350"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Height="50" Width="50" Content="&#x039E;" Click="HamburgerButton_Click" />
+                    <Button Grid.Row="1" Grid.Column="0" Height="50" Width="50" Content="&#x038E;" Click="Button_Click_Start"/>
+                    <Button Grid.Row="2" Grid.Column="0" Height="50" Width="50" Content="&#x040E;" Click="Button_Click_Options"/>
+                    <Button Grid.Row="3" Grid.Column="0" Height="50" Width="50" Content="&#x041E;" Click="Button_Click_Exit"/>
+                    <Button Name="nameTextBlock" Grid.Row="0" Grid.Column="1" Width="350"  VerticalAlignment="Stretch" Click="HamburgerButton_Click"/>
+                    <Button Grid.Row="1" Grid.Column="1" Width="350" Content="Start Game" VerticalAlignment="Stretch" Click="Button_Click_Start"/>
+                    <Button Grid.Row="2" Grid.Column="1" Width="350" Content="Options" VerticalAlignment="Stretch" Click="Button_Click_Start"/>
+                    <Button Grid.Row="3" Grid.Column="1" Width="350" Content="Exit" VerticalAlignment="Stretch" Click="Button_Click_Exit"/>
+                </Grid>
+            </SplitView.Pane>
+            <SplitView.Content>
+                <Grid Name="gridContent">
+            </Grid>
+            </SplitView.Content>
+        </SplitView>
     </Grid>
 </Page>

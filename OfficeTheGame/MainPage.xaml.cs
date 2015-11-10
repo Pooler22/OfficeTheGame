@@ -25,10 +25,15 @@ namespace OfficeTheGame
             this.InitializeComponent();
         }
 
+        private void HamburgerButton_Click(object sender, RoutedEventArgs e)
+        {
+            HamburgerSplitView.IsPaneOpen = !HamburgerSplitView.IsPaneOpen;
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             this.name = e.Parameter as string;
-            nameTextBlock.Text = "Welcome " + this.name;
+            nameTextBlock.Content = "Welcome " + this.name;
         }
 
         private void Button_Click_Start(object sender, RoutedEventArgs e)
